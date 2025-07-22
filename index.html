@@ -1,4 +1,136 @@
-<!DOCTYPE html>
+
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="creditos">Desenvolvido por HerrKrieg e Jakehimura</div>
+      <button onclick="document.body.classList.toggle('dark')" class="btn-modo-escuro">🌙 Modo Claro/Escuro</button>
+    </div>
+
+    <div class="section">
+      <h2>👤 Quem é você?</h2>
+      <label>Posição que se identifica:
+        <select id="posicao">
+          <option>Top</option>
+          <option>Switch</option>
+          <option>bottom</option>
+          <option>Sádico</option>
+          <option>Masoquista</option>
+          <option>Fetichista</option>
+          <option>Outros</option>
+        </select>
+      </label>
+      <label>Tolerância à dor:
+        <select id="dor">
+          <option>Muito Baixa</option>
+          <option>Baixa</option>
+          <option>Média</option>
+          <option>Alta</option>
+          <option>Muito Alta</option>
+          <option>N/A</option>
+        </select>
+      </label>
+      <label>Nível de experiência teórica:
+        <select id="teorica">
+          <option>0-3 anos</option>
+          <option>3-5 anos</option>
+          <option>5-7 anos</option>
+          <option>7-10 anos</option>
+          <option>10+ anos</option>
+        </select>
+      </label>
+      <label>Nível de experiência prática:
+        <select id="pratica">
+          <option>0-3 anos</option>
+          <option>3-5 anos</option>
+          <option>5-7 anos</option>
+          <option>7-10 anos</option>
+          <option>10+ anos</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="section">
+      <h2>💕 Tipo de Relacionamento</h2>
+      <div class="toggle-group">
+        <button class="toggle">Sessões Avulsas</button>
+        <button class="toggle">Monogamia</button>
+        <button class="toggle">Não-monogamia</button>
+        <button class="toggle">Cuckolding</button>
+        <button class="toggle">Múltiplos parceiros</button>
+        <button class="toggle">Swing (troca de casais)</button>
+        <button class="toggle">Poliamor</button>
+        <button class="toggle">Troca de poder (TPE)</button>
+        <button class="toggle">Troca Erótica de Poder (EPE)</button>
+        <button class="toggle">Troca Parcial de Poder (PPE)</button>
+        <button class="toggle">Disponibilidade 24/7</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📍 Locais</h2>
+      <div class="toggle-group">
+        <button class="toggle">Privado</button>
+        <button class="toggle">Público (exibição controlada)</button>
+        <button class="toggle">Clubes/Meetings</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 Subcategorias</h2>
+      <div class="toggle-group">
+        <button class="toggle" data-subcategoria="true">Atos sexuais</button>
+        <button class="toggle" data-subcategoria="true">Bondage</button>
+        <button class="toggle" data-subcategoria="true">Sadismo e Masoquismo</button>
+        <button class="toggle" data-subcategoria="true">Dominação e Submissão</button>
+        <button class="toggle" data-subcategoria="true">Role Play</button>
+        <button class="toggle" data-subcategoria="true">Fetiches</button>
+        <button class="toggle" data-subcategoria="true">Equipamentos</button>
+      </div>
+      <button class="btn" onclick="iniciarQuestionario()">🚀 Iniciar Questionário</button>
+    </div>
+
+    <div id="questionario" class="section hidden">
+      <h2 id="categoriaAtual"></h2>
+      <div id="perguntaAtual" style="font-size: 1.3rem; font-weight: 600; margin-bottom: 1rem; color: #2c3e50; text-align: center;"></div>
+      
+      <div class="question-header">
+        <div class="column-header dar-header">🔥 DAR</div>
+        <div></div>
+        <div class="column-header receber-header">💖 RECEBER</div>
+      </div>
+      
+      <div id="questionResponses">
+        <!-- Respostas serão inseridas aqui dinamicamente -->
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-text" id="progressText">Pergunta 1 de 1</div>
+        <div class="progress">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="navigation-buttons">
+        <button class="nav-btn btn-anterior" onclick="anteriorPergunta()">⬅️ Anterior</button>
+      </div>
+    </div>
+
+    <div id="resultados" class="section hidden">
+      <h2>📊 Resultados</h2>
+      <div id="resumo"></div>
+    </div>
+  </div>
+  <div id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000;">
+  <div style="text-align: center;">
+    <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+    <div>Carregando questionário...</div>
+  </div>
+</div>
+
+<script src="js/dataManager.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html><!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -19,7 +151,6 @@
       transition: all 0.3s ease;
     }
 
-	  
     .dark {
       background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
       color: #ecf0f1;
@@ -118,21 +249,6 @@
       overflow: hidden;
     }
 
-    .toggle::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      transition: left 0.5s;
-    }
-
-    .toggle:hover::before {
-      left: 100%;
-    }
-
     .toggle:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -161,31 +277,22 @@
     }
 
     .btn {
-  margin-top: 1.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.top-bar .btn {
-  align-self: flex-start;
-  margin-top: 0;
-}
-    
-   .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
-    .btn:active {
-      transform: translateY(0);
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 
     .dark .btn {
@@ -193,10 +300,61 @@
       box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
     }
 
-    .question-section {
-      margin-top: 2rem;
+    .btn-modo-escuro {
+      margin-top: 0;
+      padding: 0.6rem 1.2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
+    .dark .btn-modo-escuro {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.7rem;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.35rem 0.525rem;
+      border-radius: 7px;
+      box-shadow: 0 1.4px 7px rgba(0, 0, 0, 0.056);
+    }
+
+    .dark .top-bar {
+      background: rgba(52, 73, 94, 0.9);
+    }
+
+    .creditos {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2c3e50;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .dark .creditos {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Estilos do questionário */
     .question-header {
       display: grid;
       grid-template-columns: 1fr 2fr 1fr;
@@ -232,12 +390,6 @@
       color: white;
     }
 
-    .question-responses {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-
     .response-row {
       display: grid;
       grid-template-columns: 1fr 2fr 1fr;
@@ -248,95 +400,90 @@
       border-radius: 8px;
       border: 2px solid #e0e0e0;
       transition: all 0.3s ease;
+      margin-bottom: 0.5rem;
     }
-
-/* Sistema de cores semáforo para as alternativas */
-.response-row[data-resposta="N/A"] {
-  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  border-color: #95a5a6;
-}
-
-.response-row[data-resposta="Nunca experimentei"] {
-  background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
-  border-color: #bdc3c7;
-}
-
-.response-row[data-resposta="Adoro"] {
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  border-color: #27ae60;
-}
-
-.response-row[data-resposta="Aproveito"] {
-  background: linear-gradient(135deg, #58d68d 0%, #82e0aa 100%);
-  border-color: #58d68d;
-}
-
-.response-row[data-resposta="Aceito"] {
-  background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%);
-  border-color: #f7dc6f;
-}
-
-.response-row[data-resposta="Tolero"] {
-  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-  border-color: #e67e22;
-}
-
-.response-row[data-resposta="Limite rígido"] {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  border-color: #e74c3c;
-}
-
-/* Cores para modo escuro */
-.dark .response-row[data-resposta="N/A"] {
-  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  border-color: #95a5a6;
-}
-
-.dark .response-row[data-resposta="Nunca experimentei"] {
-  background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
-  border-color: #bdc3c7;
-}
-
-.dark .response-row[data-resposta="Adoro"] {
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  border-color: #27ae60;
-}
-
-.dark .response-row[data-resposta="Aproveito"] {
-  background: linear-gradient(135deg, #58d68d 0%, #82e0aa 100%);
-  border-color: #58d68d;
-}
-
-.dark .response-row[data-resposta="Aceito"] {
-  background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%);
-  border-color: #f7dc6f;
-}
-
-.dark .response-row[data-resposta="Tolero"] {
-  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-  border-color: #e67e22;
-}
-
-.dark .response-row[data-resposta="Limite rígido"] {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  border-color: #e74c3c;
-}
 
     .dark .response-row {
       background: rgba(52, 73, 94, 0.8);
       border-color: #7f8c8d;
     }
 
-    .response-row:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Sistema de cores semáforo para as alternativas */
+    .response-row[data-resposta="N/A"] {
+      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+      border-color: #95a5a6;
+    }
+
+    .response-row[data-resposta="Nunca experimentei"] {
+      background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+      border-color: #bdc3c7;
+    }
+
+    .response-row[data-resposta="Adoro"] {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      border-color: #27ae60;
+    }
+
+    .response-row[data-resposta="Aproveito"] {
+      background: linear-gradient(135deg, #58d68d 0%, #82e0aa 100%);
+      border-color: #58d68d;
+    }
+
+    .response-row[data-resposta="Aceito"] {
+      background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%);
+      border-color: #f7dc6f;
+    }
+
+    .response-row[data-resposta="Tolero"] {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      border-color: #e67e22;
+    }
+
+    .response-row[data-resposta="Limite rígido"] {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      border-color: #e74c3c;
+    }
+
+    /* Cores para modo escuro */
+    .dark .response-row[data-resposta="N/A"] {
+      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+      border-color: #95a5a6;
+    }
+
+    .dark .response-row[data-resposta="Nunca experimentei"] {
+      background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+      border-color: #bdc3c7;
+    }
+
+    .dark .response-row[data-resposta="Adoro"] {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      border-color: #27ae60;
+    }
+
+    .dark .response-row[data-resposta="Aproveito"] {
+      background: linear-gradient(135deg, #58d68d 0%, #82e0aa 100%);
+      border-color: #58d68d;
+    }
+
+    .dark .response-row[data-resposta="Aceito"] {
+      background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%);
+      border-color: #f7dc6f;
+    }
+
+    .dark .response-row[data-resposta="Tolero"] {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      border-color: #e67e22;
+    }
+
+    .dark .response-row[data-resposta="Limite rígido"] {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      border-color: #e74c3c;
     }
 
     .response-text {
       text-align: center;
       font-weight: 600;
       color: #2c3e50;
-      font-size: 1rem;
     }
 
     .dark .response-text {
@@ -345,83 +492,59 @@
 
     .response-switch {
       position: relative;
-      width: 50px;
-      height: 25px;
-      margin: 0 auto;
+      display: flex;
+      justify-content: center;
     }
 
-    .response-switch input {
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 25px;
+    }
+
+    .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
 
-   .response-slider {
-  position: relative;
-  cursor: pointer;
-      display: inline-block;
-      width: 50px;
-      height: 25px;
+    .slider {
+      position: absolute;
+      cursor: pointer;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #e0e0e0;
-      transition: 0.3s;
-      border-radius: 15px;
-      border: 2px solid #bdc3c7;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
     }
 
-.response-slider:before {
-  position: absolute;
-  content: "";
-      top: 2px;
-      left: 2px;
-      width: 17px;
-      height: 17px;
-      background: white;
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 19px;
+      width: 19px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
       border-radius: 50%;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    input:checked + .response-slider {
-      background-color: #27ae60;
-      border-color: #27ae60;
-    }
-
-    input:checked + .response-slider:before {
-      transform: translateX(21px);
-    }
-
-    .dar-switch input:checked + .response-slider {
+    input:checked + .slider {
       background-color: #667eea;
-      border-color: #667eea;
     }
 
-    .receber-switch input:checked + .response-slider {
-      background-color: #667eea;
-      border-color: #667eea;
+    input:checked + .slider:before {
+      transform: translateX(22px);
     }
 
-    .dark .response-slider {
-      background-color: #34495e;
-      border-color: #7f8c8d;
-    }
-
-    .dark .response-slider:before {
-      background-color: #ecf0f1;
-    }
-
-   .dark .dar-switch input:checked + .response-slider {
+    .dark input:checked + .slider {
       background-color: #3498db;
-      border-color: #3498db;
-}
+    }
 
-.dark .receber-switch input:checked + .response-slider {
-  background-color: #3498db;
-  border-color: #3498db;
-}
     .progress-container {
       margin: 2rem 0;
       background: rgba(255, 255, 255, 0.9);
@@ -451,7 +574,6 @@
       background: #e0e0e0;
       border-radius: 10px;
       overflow: hidden;
-      position: relative;
     }
 
     .progress-bar {
@@ -459,70 +581,18 @@
       background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
       border-radius: 10px;
       transition: width 0.5s ease;
-      position: relative;
-    }
-
-    .progress-bar::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    .dark .progress {
-      background: #34495e;
+      width: 0%;
     }
 
     .dark .progress-bar {
       background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 0.75rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .dark .top-bar {
-      background: rgba(52, 73, 94, 0.9);
-    }
-
-    .creditos {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #2c3e50;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .dark .creditos {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
     .navigation-buttons {
       display: flex;
       justify-content: center;
-      margin-top: 2rem;
       gap: 1rem;
+      margin-top: 2rem;
     }
 
     .nav-btn {
@@ -533,7 +603,6 @@
       font-size: 1rem;
       font-weight: 600;
       transition: all 0.3s ease;
-      max-width: 200px;
     }
 
     .btn-anterior {
@@ -546,169 +615,17 @@
       box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
     }
 
-    .toggle-field {
-      margin-top: 0.5rem;
-    }
-
-    .slide-toggle {
-      margin-bottom: 1rem;
-    }
-
-    .slide-toggle input[type="checkbox"] {
-      display: none;
-    }
-
-    .slider {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 25px;
-      background: #e0e0e0;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid #bdc3c7;
-    }
-
-    .slider::before {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 17px;
-      height: 17px;
-      background: white;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .slide-toggle input[type="checkbox"]:checked + .slider {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-color: #667eea;
-    }
-
-    .slide-toggle input[type="checkbox"]:checked + .slider::before {
-      transform: translateX(21px);
-    }
-
-    .dark .slider {
-      background: #34495e;
-      border-color: #7f8c8d;
-    }
-
-    .dark .slider::before {
-      background: #ecf0f1;
-    }
-
-    .dark .slide-toggle input[type="checkbox"]:checked + .slider {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-      border-color: #3498db;
-    }
-
-    .resultados {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-    }
-
-    .dark .resultados {
-      background: rgba(52, 73, 94, 0.95);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .dark table {
-      background: #34495e;
-    }
-
-    th, td {
-      border: 1px solid #e0e0e0;
-      padding: 0.8rem;
-      text-align: left;
-    }
-
-    .dark th, .dark td {
-      border-color: #7f8c8d;
-    }
-
-    th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .btn-proximo {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
       color: white;
-      font-weight: 600;
     }
 
-    th[data-resposta="Nunca experimentei"] {
-      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    .btn-proximo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
     }
 
-    th[data-resposta="Adoro"] {
-      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    }
-
-    th[data-resposta="Aproveito"] {
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    }
-
-    th[data-resposta="Aceito"] {
-      background: linear-gradient(135deg, #f4d03f 0%, #f7dc6f 100%);
-      color: #2c3e50;
-    }
-
-    th[data-resposta="Tolero"] {
-      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-    }
-
-    th[data-resposta="Limite rígido"] {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    }
-
-    .dark th {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    }
-
-    .dark th[data-resposta="Nunca experimentei"] {
-      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-    }
-
-    .dark th[data-resposta="Adoro"] {
-      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    }
-
-    .dark th[data-resposta="Aproveito"] {
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    }
-
-    .dark th[data-resposta="Aceito"] {
-      background: linear-gradient(135deg, #f4d03f 0%, #f7dc6f 100%);
-      color: #2c3e50;
-    }
-
-    .dark th[data-resposta="Tolero"] {
-      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-    }
-
-    .dark th[data-resposta="Limite rígido"] {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    }
-
-    .resultado-categoria h3 {
-      background: linear-gradient(90deg, #27ae60 0%, #f1c40f 16.66%, #e67e22 33.33%, #d35400 50%, #e74c3c 66.66%, #c0392b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin: 2rem 0 1rem 0;
-    }
-
+    /* Estilos dos resultados */
     .estatisticas-gerais {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       padding: 2rem;
@@ -787,28 +704,248 @@
       color: #3498db;
     }
 
-    .link-compartilhado {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1rem;
-      border-radius: 8px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 1rem;
-      font-family: monospace;
-      word-break: break-all;
-      font-size: 0.9rem;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .alerta-compartilhamento {
-      background: rgba(46, 204, 113, 0.1);
-      border: 2px solid #2ecc71;
-      color: #27ae60;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
+    .dark table {
+      background: #34495e;
+    }
+
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 0.8rem;
+      text-align: center;
+    }
+
+    .dark th, .dark td {
+      border-color: #7f8c8d;
+    }
+
+    th {
+      background: transparent;
+      color: #2c3e50;
+      font-weight: 600;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .dark th {
+      background: transparent;
+      color: #ecf0f1;
+      border-bottom: 2px solid #7f8c8d;
+    }
+
+    .resultado-categoria h3 {
+      background: linear-gradient(90deg, #27ae60 0%, #f1c40f 50%, #e74c3c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 2rem 0 1rem 0;
+    }
+
+    /* Cores do semáforo para células da tabela nos resultados */
+    td[data-resposta="Nunca experimentei"] {
+      background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%) !important;
+      color: white;
       font-weight: 600;
     }
 
-    .dark .alerta-compartilhamento {
-      color: #2ecc71;
+    td[data-resposta="Adoro"] {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+      color: white;
+      font-weight: 600;
+    }
+
+    td[data-resposta="Aproveito"] {
+      background: linear-gradient(135deg, #58d68d 0%, #82e0aa 100%) !important;
+      color: white;
+      font-weight: 600;
+    }
+
+    td[data-resposta="Aceito"] {
+      background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%) !important;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    td[data-resposta="Tolero"] {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+      color: white;
+      font-weight: 600;
+    }
+
+    td[data-resposta="Limite rígido"] {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Cores para modo escuro - células da tabela */
+    .dark td[data-resposta="Nunca experimentei"] {
+      background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%) !important;
+      color: white;
+    }
+
+    .dark td[data-resposta="Adoro"] {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+      color: white;
+    }
+
+    .dark td[data-resposta="Aproveito"] {
+      background: linear-gradient(135deg, #58d68d 0%, #82e0aa 100%) !important;
+      color: white;
+    }
+
+    .dark td[data-resposta="Aceito"] {
+      background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%) !important;
+      color: #2c3e50;
+    }
+
+    .dark td[data-resposta="Tolero"] {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+      color: white;
+    }
+
+    .dark td[data-resposta="Limite rígido"] {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+      color: white;
+    }
+
+    /* Estilos para o resumo do perfil selecionado */
+    .resumo-perfil-selecionado {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .resumo-perfil-selecionado {
+      background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    }
+
+    .resumo-perfil-selecionado h3 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .dark .resumo-perfil-selecionado h3 {
+      color: #ecf0f1;
+    }
+
+    .resumo-perfil-selecionado h4 {
+      margin: 1.5rem 0 1rem 0;
+      color: #667eea;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-left: 4px solid #667eea;
+      padding-left: 1rem;
+    }
+
+    .dark .resumo-perfil-selecionado h4 {
+      color: #3498db;
+      border-left-color: #3498db;
+    }
+
+    .perfil-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .perfil-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .perfil-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .dark .perfil-card {
+      background: #2c3e50;
+    }
+
+    .perfil-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .perfil-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .dark .perfil-label {
+      color: #bdc3c7;
+    }
+
+    .perfil-valor {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .dark .perfil-valor {
+      color: #ecf0f1;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tag {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .tag-relacionamento {
+      background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    }
+
+    .tag-local {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    }
+
+    .tag-categoria {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .dark .tag-relacionamento {
+      background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+    }
+
+    .dark .tag-local {
+      background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+    }
+
+    .dark .tag-categoria {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     }
 
     .modo-visualizacao {
@@ -826,16 +963,7 @@
     }
 
     @media (max-width: 768px) {
-      .question-section {
-	grid-template-columns: 1fr 2fr 1fr;
-        gap: 1rem;
-      }
-
-      .response-row {
-       grid-template-columns: 1fr 2fr 1fr;
-      }
-
-   .toggle-group {
+      .toggle-group {
         grid-template-columns: 1fr;
       }
       
@@ -843,887 +971,53 @@
         flex-direction: column;
       }
       
-      .nav-btn {
-        max-width: none;
+      .question-header, .response-row {
+        grid-template-columns: 1fr 2fr 1fr;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .question-header {
+        padding: 0.8rem 0.5rem;
+      }
+
+      .column-header {
+        font-size: 0.9rem;
+        padding: 0.6rem 0.3rem;
+      }
+
+      .response-row {
+        padding: 0.8rem 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .response-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.5rem;
+      }
+
+      .response-switch {
+        display: flex;
+        justify-content: center;
+      }
+
+      .switch {
+        width: 45px;
+        height: 23px;
+      }
+
+      .slider:before {
+        height: 17px;
+        width: 17px;
+        left: 3px;
+        bottom: 3px;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(19px);
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <div class="creditos">Desenvolvido por HerrKrieg e Jakehimura</div>
-      <button onclick="document.body.classList.toggle('dark')" class="btn">🌙 Modo Claro/Escuro</button>
-    </div>
-
-    <div class="section">
-      <h2>👤 Quem é você?</h2>
-      <label>Posição que se identifica:
-        <select id="posicao">
-          <option>Top</option>
-          <option>Switch</option>
-          <option>bottom</option>
-          <option>Sádico</option>
-          <option>Masoquista</option>
-          <option>Fetichista</option>
-          <option>Outros</option>
-        </select>
-      </label>
-      <label>Tolerância à dor:
-        <select id="dor">
-          <option>Muito Baixa</option>
-          <option>Baixa</option>
-          <option>Média</option>
-          <option>Alta</option>
-          <option>Muito Alta</option>
-          <option>N/A</option>
-        </select>
-      </label>
-      <label>Nível de experiência teórica:
-        <select id="teorica">
-          <option>0-3 anos</option>
-          <option>3-5 anos</option>
-          <option>5-7 anos</option>
-          <option>7-10 anos</option>
-          <option>10+ anos</option>
-        </select>
-      </label>
-      <label>Nível de experiência prática:
-        <select id="pratica">
-          <option>0-3 anos</option>
-          <option>3-5 anos</option>
-          <option>5-7 anos</option>
-          <option>7-10 anos</option>
-          <option>10+ anos</option>
-        </select>
-      </label>
-      <label>Orientação sexual:
-        <select id="sexualidade">
-          <option>Heterossexual</option>
-          <option>Homossexual</option>
-          <option>Bissexual</option>
-          <option>Pansexual</option>
-          <option>Assexual</option>
-          <option>Demissexual</option>
-          <option>Outros</option>
-        </select>
-      </label>
-      <label>Alguma condição médica?
-        <div class="toggle-field">
-          <div class="slide-toggle">
-            <input type="checkbox" id="condicaoToggle" />
-            <label for="condicaoToggle" class="slider"></label>
-          </div>
-          <input type="text" id="condicao" placeholder="Descreva qualquer condição médica relevante..." style="display: none;" />
-        </div>
-      </label>
-      <label>Alguma condição/limitação/gatilho física ou ?
-        <div class="toggle-field">
-          <div class="slide-toggle">
-            <input type="checkbox" id="limitacaoToggle" />
-            <label for="limitacaoToggle" class="slider"></label>
-          </div>
-          <input type="text" id="limitacao" placeholder="Descreva qualquer condição relevante..." style="display: none;" />
-        </div>
-      </label>
-    </div>
-
-    <div class="section">
-      <h2>💕 Tipo de Relacionamento</h2>
-      <div class="toggle-group">
-        <button class="toggle">Sessões Avulsas</button>
-        <button class="toggle">Monogamia</button>
-        <button class="toggle">Não-monogamia</button>
-        <button class="toggle">Cuckolding</button>
-        <button class="toggle">Múltiplos parceiros</button>
-        <button class="toggle">Swing (troca de casais)</button>
-        <button class="toggle">Poliamor</button>
-        <button class="toggle">Troca de poder (TPE)</button>
-        <button class="toggle">Troca Erótica de Poder (EPE)</button>
-        <button class="toggle">Troca Parcial de Poder (PPE)</button>
-        <button class="toggle">Disponibilidade 24/7</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>📍 Locais</h2>
-      <div class="toggle-group">
-        <button class="toggle">Privado</button>
-        <button class="toggle">Público (exibição controlada)</button>
-        <button class="toggle">Clubes/Meetings</button>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2>📋 Subcategorias</h2>
-      <div class="toggle-group">
-        <button class="toggle" data-subcategoria="true">Atos sexuais</button>
-        <button class="toggle" data-subcategoria="true">Bondage</button>
-        <button class="toggle" data-subcategoria="true">Sadismo e Masoquismo</button>
-        <button class="toggle" data-subcategoria="true">Dominação e Submissão</button>
-        <button class="toggle" data-subcategoria="true">Role Play</button>
-        <button class="toggle" data-subcategoria="true">Fetiches</button>
-        <button class="toggle" data-subcategoria="true">Equipamentos</button>
-      </div>
-      <button class="btn" onclick="iniciarQuestionario()">🚀 Iniciar Questionário</button>
-    </div>
-
-    <div id="questionario" class="section hidden">
-      <h2 id="categoriaAtual"></h2>
-      <div id="perguntaAtual" style="font-size: 1.3rem; font-weight: 600; margin-bottom: 1rem; color: #2c3e50; text-align: center;"></div>
-      
-      <div class="question-section">
-        <div class="question-header">
-          <div class="column-header dar-header">🔥 DAR</div>
-          <div></div>
-          <div class="column-header receber-header">💖 RECEBER</div>
-        </div>
-        
-        <div class="question-responses" id="questionResponses">
-          <!-- Respostas serão inseridas aqui dinamicamente -->
-        </div>
-      </div>
-
-      <div class="progress-container">
-        <div class="progress-text" id="progressText">Pergunta 1 de 1</div>
-        <div class="progress">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-      </div>
-
-      <div class="navigation-buttons">
-        <button class="nav-btn btn-anterior" onclick="anteriorPergunta()">⬅️ Anterior</button>
-      </div>
-    </div>
-
-    <div id="resultados" class="section hidden resultados">
-      <h2>📊 Resultados</h2>
-      <div id="resumo"></div>
-    </div>
-  </div>
-
-<script>
-  const botoesToggle = document.querySelectorAll('.toggle-group .toggle');
-  botoesToggle.forEach(btn =>
-    btn.addEventListener('click', () => btn.classList.toggle('active'))
-  );
-
-  const respostas = [
-    "N/A", "Nunca experimentei", "Adoro", "Aproveito", "Aceito", "Tolero", "Limite rígido"
-  ];
-
-  let perguntas = {
-    "Atos sexuais": [
-      "Sexo Vaginal", "Sexo Anal", "Sexo oral", "Sexo nos seios",
-      "Masturbação sem penetração dos dedos", "Masturbação com penetração dos dedos",
-      "Fisting vaginal", "Fisting Anal", "Beijo", "Beijo de língua", "Lambidas", "Rimming / Lambedura Anal",
-      "Brinquedos vaginais", "Brinquedos anais", "Provocações sexuais", "Massagem",
-      "Acariciar / acariciar o cabelo", "Fluidos Corporais - Saliva", "Fluidos Corporais - Suor",
-      "Fluidos Corporais - Urina", "Fluidos Corporais - Esperma", "Fluidos Corporais - Lubrificação Feminina",
-      "Fluidos Corporais - No corpo", "Fluidos Corporais - No rosto", "Fluidos Corporais - Na boca",
-      "Fluidos Corporais - Ingerir", "Dupla Penetração", "Dupla Penetração Vaginal",
-      "Dupla Penetração - Brinquedos", "Dupla Penetração Vaginal - Brinquedos",
-      "Penetração Tripla - Humana", "Penetração Tripla - Brinquedos", "Menáge - MFF", "Menáge - FMF",
-      "Menáge - FMM", "Menáge - MFM", "Menáge - Todos do mesmo sexo", "Gang Bang"
-    ],
-    "Bondage": [
-      "Corpo todo", "Mental", "Restrição de movimentos 0-1 hora", "Restrição de movimentos 1-3 horas",
-      "Restrição de movimentos 3-12 horas", "Equipamentos restritivos de couro", "Equipamentos restritivos Metálicos",
-      "Amarrações", "Amarrações complexas / Shibari", "Suspensão - Vertical", "Suspensão - Horizontal",
-      "Suspensão - Invertida", "Restrição Genital", "Mumificação", "Contenção (Celas / Gaiolas/ Jaulas)",
-      "Posições desconfortáveis", "Gags", "Privação sensorial", "Dispositivos de castidade"
-    ],
-    "Sadismo e Masoquismo": [
-      "Palmada", "Tapa na cara", "Morder", "Tortura de mamilo", "Tortura Genital",
-      "Socos / Espancamentos", "Hematomas", "Coçar", "Puxões de cabelo", "Beliscar", "Asfixia - Traqueia",
-      "Asfixia - Arterial", "Controle de respiração", "Tortura de Água", "Sufocar sentando no rosto", "Ser pisado",
-      "Fogo", "Bastinado (tortura de pés)", "Abrasão", "Ventosaterapia / Sucção", "Agulhas", "Perfuração",
-      "Facas (sem corte)", "Corte", "Choque", "Frio/Quente", "Velas/Cera Quente", "Cócegas", "Luta livre",
-      "Humilhação (privado)", "Humilhação pública", "Dilatação - Vaginal", "Dilatação - Anal", "Abuso Verbal",
-      "Marcas permanentes", "Cell Popping / Micro Branding", "Injeções", "Escarificação", "Tatuagem", "Enemas",
-      "Brincadeira uretral", "Engasgos (dedos ou objetos)", "Engasgos durante oral"
-    ],
-    "Dominação e Submissão": [
-      "Implorar", "Tarefas domésticas", "Ser mandado", "Protocolo de postura/posição corporal",
-      "Restrição de Comportamento", "Restrição de contato visual", "Restrição/protocolo de fala",
-      "Controle de uso do banheiro", "Rastejar", "Exercício Forçado", "Masturbação Forçada", "Orgasmos Forçados",
-      "Roupas escolhidas", "Nudez Forçada", "Comida escolhida", "Coleira e Guia", "Conversa Suja", "Sermão", "Hipnose",
-      "Lustrar botas", "Em Público", "Em Público de forma discreta", "Controle / Negação do Orgasmo",
-      "Resistência/Insurgência", "Adoração de Pés / Pernas", "Adoração Genital", "Competição", "Diário / blog",
-      "Controle de peso corporal", "Servir como Móvel", "Servir como Arte", "Servir como cinzeiro",
-      "Servir como banheiro", "Bissexualidade forçada", "Acessório simbólico", "Condições de sono", "Motorista"
-    ],
-    "Role Play": [
-      "Chefe/Secretária", "Professor/Estudante", "Donzela em perigo", "Sequestro",
-      "Médico - Enfermeiro / Paciente", "Diferença de idade (Ageplay)", "Interrogatório", "Regressão etária",
-      "Bebê adulto", "Cenas de prisão", "Servindo como empregada doméstica", "Prostituição / Doado",
-      "Iniciação / Ritual", "Cenas de punição", "Cenas Religiosas", "Cenas de estupro", "Petplay - Cachorro",
-      "Petplay - Gato", "Petplay - Cavalo", "Furries", "Cosplay", "Boneca viva", "Cenas de corno",
-      "Cenas de leilão", "Reprodução / Impregnação"
-    ],
-    "Fetiches": [
-      "Couro", "Látex", "Borracha", "PVC", "Lingerie", "Sapatos", "Botas", "Luvas", "Pés", "Mãos",
-      "Fixação Oral", "Fumar", "Uniformes", "Voyeurismo", "Espartilhos", "Médico", "Crossdressing",
-      "Feminização Forçada", "Strap-On", "Lolita", "Pessoas mais velhas", "Pelagem animal", "Lactação",
-      "Brincadeira de comida", "Menstruação", "Fotos/Vídeos", "Exibicionismo Online", "Exibicionismo Real",
-      "Medo / Ameaça", "Chorando", "Abandono", "Acrotomofilia", "Barosmia", "Barbear", "Shibari", "Dança Erótica",
-      "Piercings", "Tatuagens", "Modificação corporal", "Musculação", "Bukkake", "Zentai", "Fraldas",
-      "Chuva Dourada", "Sangue", "Vomitar", "Scat"
-    ],
-    "Equipamentos": [
-      "Cintos/tiras de couro", "Corda de cânhamo", "Correntes", "Coleiras", "Coleiras de Postura", "Punhos de couro",
-      "Algemas", "Algemas Metálicas", "Meia calça", "Barras espaçadoras", "Cadeados", "Vendas", "Capuzes",
-      "Máscaras", "Protetores auriculares", "Máscaras de gás", "Camas a vácuo", "Harness", "Plástico Filme",
-      "Gesso", "Braçadeira única", "Luvas de Ópera Bondage", "Anéis penianos", "Balanço sexual", "Trelas de cavalo",
-      "Jaquetas de bondage", "Gaiolas", "Gags de bola", "Gags de pano", "Gags de fita", "Gags de pênis",
-      "Gags de boca aberta", "Gags infláveis", "Gags vibrador", "Gags de focinheira", "Trelas de nariz",
-      "Ganchos de nariz", "Prendedores de roupa", "Bengalas", "Remos", "Chicotes", "Chicotes de 9 caudas",
-      "Chicote de Dragão", "Club medieval", "Varinhas Violetas", "Eletro Estimulação", "Grampos para Mamilos",
-      "Pesos para mamilos", "Pinças para lábios", "Pesos Genitais", "Esmagadores nas bolas", "Gancho Anal",
-      "Gancho Vaginal", "Vibradores - Inseríveis", "Vibradores - Varinhas", "Plugues anais", "Plugues com cauda",
-      "Bolinhas tailandesas", "Espéculos", "Sonda uretral", "Cata-ventos", "Sinos", "Strap-on", "Penas", "Facas",
-      "Garras", "Espelhos", "Máquinas sexuais"
-    ]
-  };
-
-  let listaPerguntas = [];
-  let indice = 0;
-  let respostasUsuario = [];
-  let respostaDarAtual = null;
-  let respostaReceberAtual = null;
-  let voltouPergunta = false;
-
-  function iniciarQuestionario() {
-    const selecionadas = Array.from(document.querySelectorAll('[data-subcategoria].active')).map(btn => btn.textContent);
-    
-    if (selecionadas.length === 0) {
-      alert('Por favor, selecione pelo menos uma subcategoria!');
-      return;
-    }
-    
-    listaPerguntas = [];
-    respostasUsuario = [];
-    selecionadas.forEach(cat => {
-      if (perguntas[cat]) {
-        perguntas[cat].forEach(p => listaPerguntas.push({ categoria: cat, texto: p }));
-      }
-    });
-    
-    indice = 0;
-    respostaDarAtual = null;
-    respostaReceberAtual = null;
-    
-    document.getElementById('questionario').classList.remove('hidden');
-    document.getElementById('resultados').classList.add('hidden');
-    mostrarPergunta();
-  }
-
-  function mostrarPergunta() {
-    if (indice < 0 || indice >= listaPerguntas.length) return;
-    
-    const atual = listaPerguntas[indice];
-    document.getElementById('categoriaAtual').textContent = `📋 ${atual.categoria}`;
-    document.getElementById('perguntaAtual').textContent = atual.texto;
-
-    // Limpar seleções anteriores
-    respostaDarAtual = null;
-    respostaReceberAtual = null;
-    
-    // Restaurar respostas se existirem
-    if (respostasUsuario[indice]) {
-      respostaDarAtual = respostasUsuario[indice].dar;
-      respostaReceberAtual = respostasUsuario[indice].receber;
-    }
-
-    criarRespostas();
-    
-    atualizarProgresso();
-    verificarBotaoProximo();
-  }
-
-  function criarRespostas() {
-    const container = document.getElementById('questionResponses');
-    container.innerHTML = '';
-    
-    respostas.forEach(resposta => {
-      const responseRow = document.createElement('div');
-      responseRow.className = 'response-row';
-      responseRow.setAttribute('data-resposta', resposta);
-      
-      // Toggle DAR
-      const darSwitch = document.createElement('div');
-      darSwitch.className = 'response-switch dar-switch';
-      
-      const darInput = document.createElement('input');
-      darInput.type = 'checkbox';
-      darInput.id = `dar-${resposta.replace(/\s+/g, '-').toLowerCase()}-${indice}`;
-      
-      const darSlider = document.createElement('label');
-      darSlider.className = 'response-slider';
-      darSlider.setAttribute('for', darInput.id);
-      
-      darSwitch.appendChild(darInput);
-      darSwitch.appendChild(darSlider);
-      
-      // Texto da resposta (centralizado)
-      const responseText = document.createElement('div');
-      responseText.className = 'response-text';
-      responseText.textContent = resposta;
-      
-      // Toggle RECEBER
-      const receberSwitch = document.createElement('div');
-      receberSwitch.className = 'response-switch receber-switch';
-      
-      const receberInput = document.createElement('input');
-      receberInput.type = 'checkbox';
-      receberInput.id = `receber-${resposta.replace(/\s+/g, '-').toLowerCase()}-${indice}`;
-      
-      const receberSlider = document.createElement('label');
-      receberSlider.className = 'response-slider';
-      receberSlider.setAttribute('for', receberInput.id);
-      
-      receberSwitch.appendChild(receberInput);
-      receberSwitch.appendChild(receberSlider);
-      
-      // Event listeners
-      darInput.addEventListener('change', function() {
-        if (this.checked) {
-          // Desmarcar outros toggles DAR
-          container.querySelectorAll('.dar-switch input[type="checkbox"]').forEach(cb => {
-            if (cb !== this) cb.checked = false;
-          });
-          respostaDarAtual = resposta;
-        } else {
-          respostaDarAtual = null;
-        }
-        verificarBotaoProximo();
-      });
-      
-      receberInput.addEventListener('change', function() {
-        if (this.checked) {
-          // Desmarcar outros toggles RECEBER
-          container.querySelectorAll('.receber-switch input[type="checkbox"]').forEach(cb => {
-            if (cb !== this) cb.checked = false;
-          });
-          respostaReceberAtual = resposta;
-        } else {
-          respostaReceberAtual = null;
-        }
-        verificarBotaoProximo();
-      });
-      
-      // Marcar como selecionado se for a resposta atual
-      if (respostaDarAtual === resposta) {
-        darInput.checked = true;
-      }
-      if (respostaReceberAtual === resposta) {
-        receberInput.checked = true;
-      }
-      
-      // Montar a linha
-      responseRow.appendChild(darSwitch);
-      responseRow.appendChild(responseText);
-      responseRow.appendChild(receberSwitch);
-      
-      container.appendChild(responseRow);
-    });
-  }
-
-function verificarBotaoProximo() {
-  const btnProximo = document.querySelector('.btn-proximo');
-  
-  if (respostaDarAtual && respostaReceberAtual) {
-    if (voltouPergunta) {
-      // Se voltou, mostra botão próximo
-      if (!btnProximo) {
-        const btnAnterior = document.querySelector('.btn-anterior');
-        const novoBtn = document.createElement('button');
-        novoBtn.className = 'nav-btn btn-proximo';
-        novoBtn.textContent = '➡️ Próximo';
-        novoBtn.onclick = proximaPergunta;
-        btnAnterior.parentNode.appendChild(novoBtn);
-      }
-    } else {
-      // Uso normal = auto-avanço
-      setTimeout(() => {
-        proximaPergunta();
-      }, 500);
-    }
-  }
-}
-
-function proximaPergunta() {
-  if (!respostaDarAtual || !respostaReceberAtual) {
-    return;
-  }
-  
-  voltouPergunta = false;
-  const btnProximo = document.querySelector('.btn-proximo');
-  if (btnProximo) {
-    btnProximo.remove();
-  }
-  
-  const atual = listaPerguntas[indice];
-  respostasUsuario[indice] = {
-    categoria: atual.categoria,
-    pergunta: atual.texto,
-    dar: respostaDarAtual,
-    receber: respostaReceberAtual
-  };
-  
-  indice++;
-  
-  if (indice < listaPerguntas.length) {
-    mostrarPergunta();
-  } else {
-    mostrarResultado();
-  }
-}
-
-  function anteriorPergunta() {
-    if (indice > 0) {
-    indice--;
-    voltouPergunta = true;
-    mostrarPergunta();
-    }
-  }
-
-  function atualizarProgresso() {
-    const progressText = document.getElementById('progressText');
-    const progressBar = document.getElementById('progressBar');
-    
-    const atual = indice + 1;
-    const total = listaPerguntas.length;
-    
-    progressText.textContent = `Pergunta ${atual} de ${total}`;
-    
-    const porcentagem = (indice / listaPerguntas.length) * 100;
-    progressBar.style.width = porcentagem + '%';
-  }
-
-  function mostrarResultado() {
-    document.getElementById('questionario').classList.add('hidden');
-    document.getElementById('resultados').classList.remove('hidden');
-
-    const resumo = document.getElementById('resumo');
-    resumo.innerHTML = '';
-    
-    const agrupado = {};
-
-    // Filtrar respostas N/A
-    const respostasFiltradas = respostasUsuario.filter(r => 
-      r.dar !== 'N/A' || r.receber !== 'N/A'
-    );
-
-    respostasFiltradas.forEach(r => {
-      if (!agrupado[r.categoria]) {
-        agrupado[r.categoria] = {
-          dar: {},
-          receber: {}
-        };
-      }
-      
-      // Agrupar respostas DAR (exceto N/A)
-      if (r.dar !== 'N/A') {
-        if (!agrupado[r.categoria].dar[r.dar]) {
-          agrupado[r.categoria].dar[r.dar] = [];
-        }
-        agrupado[r.categoria].dar[r.dar].push(r.pergunta);
-      }
-      
-      // Agrupar respostas RECEBER (exceto N/A)
-      if (r.receber !== 'N/A') {
-        if (!agrupado[r.categoria].receber[r.receber]) {
-          agrupado[r.categoria].receber[r.receber] = [];
-        }
-        agrupado[r.categoria].receber[r.receber].push(r.pergunta);
-      }
-    });
-
-    // Adicionar estatísticas gerais
-    adicionarEstatisticasGerais(resumo, respostasFiltradas);
-
-    // Adicionar botão de compartilhamento
-    adicionarBotaoCompartilhar(resumo);
-
-    for (const categoria in agrupado) {
-      const secao = document.createElement('div');
-      secao.className = 'resultado-categoria';
-      secao.innerHTML = `<h3>📋 ${categoria}</h3>`;
-      
-      // Criar tabela para DAR
-      const tabelaDar = criarTabelaResultado(agrupado[categoria].dar, 'DAR');
-      secao.appendChild(tabelaDar);
-      
-      // Criar tabela para RECEBER
-      const tabelaReceber = criarTabelaResultado(agrupado[categoria].receber, 'RECEBER');
-      secao.appendChild(tabelaReceber);
-      
-      resumo.appendChild(secao);
-    }
-  }
-
-  function criarTabelaResultado(dados, tipo) {
-    const container = document.createElement('div');
-    container.innerHTML = `<h4 style="margin: 1rem 0; color: ${tipo === 'DAR' ? '#e74c3c' : '#27ae60'};">${tipo === 'DAR' ? '🔥' : '💖'} ${tipo}</h4>`;
-    
-    const tabela = document.createElement('table');
-    const headerRow = document.createElement('tr');
-
-    // Filtrar respostas para excluir N/A
-    const respostasVisiveis = respostas.filter(r => r !== 'N/A');
-
-    respostasVisiveis.forEach(res => {
-      const th = document.createElement('th');
-      th.textContent = res;
-      th.setAttribute('data-resposta', res);
-      headerRow.appendChild(th);
-    });
-
-    tabela.appendChild(headerRow);
-
-    // Encontrar o máximo de itens por coluna
-    const maxLinhas = Math.max(...respostasVisiveis.map(r => (dados[r] || []).length));
-
-    for (let i = 0; i < maxLinhas; i++) {
-      const row = document.createElement('tr');
-      respostasVisiveis.forEach(res => {
-        const td = document.createElement('td');
-        td.textContent = dados[res]?.[i] || "";
-        row.appendChild(td);
-      });
-      tabela.appendChild(row);
-    }
-
-    container.appendChild(tabela);
-    return container;
-  }
-
-  // Sistema de compartilhamento
-  function gerarLinkCompartilhamento() {
-    const dadosParaCompartilhar = {
-      respostas: respostasUsuario,
-      perfil: {
-        posicao: document.getElementById('posicao').value,
-        dor: document.getElementById('dor').value,
-        teorica: document.getElementById('teorica').value,
-        pratica: document.getElementById('pratica').value,
-        sexualidade: document.getElementById('sexualidade').value
-      },
-      timestamp: new Date().toISOString()
-    };
-    
-    try {
-      const dadosString = JSON.stringify(dadosParaCompartilhar);
-      const dadosComprimidos = btoa(encodeURIComponent(dadosString));
-      const urlAtual = window.location.href.split('#')[0];
-      return `${urlAtual}#resultado=${dadosComprimidos}`;
-    } catch (error) {
-      console.error('Erro ao gerar link:', error);
-      alert('Erro ao gerar link de compartilhamento');
-      return null;
-    }
-  }
-
-  function copiarLinkCompartilhamento() {
-    const link = gerarLinkCompartilhamento();
-    if (!link) return;
-    
-    navigator.clipboard.writeText(link).then(() => {
-      // Mostrar feedback visual
-      const botao = event.target;
-      const textoOriginal = botao.textContent;
-      botao.textContent = '✅ Link Copiado!';
-      botao.style.background = '#27ae60';
-      
-      setTimeout(() => {
-        botao.textContent = textoOriginal;
-        botao.style.background = '';
-      }, 2000);
-      
-      // Mostrar link gerado
-      mostrarLinkGerado(link);
-    }).catch(() => {
-      // Fallback para navegadores mais antigos
-      const input = document.createElement('input');
-      input.value = link;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('copy');
-      document.body.removeChild(input);
-      
-      alert('Link copiado para a área de transferência!');
-      mostrarLinkGerado(link);
-    });
-  }
-
-  function mostrarLinkGerado(link) {
-    const container = document.querySelector('.compartilhar-container');
-    let linkDiv = container.querySelector('.link-compartilhado');
-    
-    if (!linkDiv) {
-      linkDiv = document.createElement('div');
-      linkDiv.className = 'link-compartilhado';
-      container.appendChild(linkDiv);
-    }
-    
-    linkDiv.innerHTML = `
-      <strong>🔗 Seu link de compartilhamento:</strong><br>
-      <span style="font-size: 0.8rem;">${link}</span>
-    `;
-    
-    // Adicionar alerta
-    let alerta = container.querySelector('.alerta-compartilhamento');
-    if (!alerta) {
-      alerta = document.createElement('div');
-      alerta.className = 'alerta-compartilhamento';
-      alerta.innerHTML = '✅ Link copiado! Agora você pode compartilhar seus resultados com qualquer pessoa.';
-      container.appendChild(alerta);
-    }
-  }
-
-  function adicionarEstatisticasGerais(container, respostasFiltradas) {
-    const stats = calcularEstatisticas(respostasFiltradas);
-    
-    const estatisticas = document.createElement('div');
-    estatisticas.className = 'estatisticas-gerais';
-    
-    estatisticas.innerHTML = `
-      <h3>📊 Resumo dos Seus Resultados</h3>
-        <div class="stat-card">
-          <div class="stat-number" style="color: #27ae60;">${stats.totalAdoro}</div>
-          <div class="stat-label">Práticas que você ADORA</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" style="color: #f39c12;">${stats.totalAceito}</div>
-          <div class="stat-label">Práticas que você ACEITA</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" style="color: #e74c3c;">${stats.totalLimites}</div>
-          <div class="stat-label">Limites Rígidos</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" style="color: #95a5a6;">${stats.totalNunca}</div>
-          <div class="stat-label">Nunca Experimentou</div>
-        </div>
-      </div>
-    `;
-    
-    container.appendChild(estatisticas);
-  }
-
-  function adicionarBotaoCompartilhar(container) {
-    const compartilhar = document.createElement('div');
-    compartilhar.className = 'compartilhar-container';
-    
-    compartilhar.innerHTML = `
-      <h3>🔗 Compartilhar Resultados</h3>
-      <p>Gere um link único para compartilhar seus resultados com outras pessoas</p>
-      <button class="btn-compartilhar" onclick="copiarLinkCompartilhamento()">
-        📋 Copiar Link de Compartilhamento
-      </button>
-    `;
-    
-    container.appendChild(compartilhar);
-  }
-
-  function calcularEstatisticas(respostas) {
-    const stats = {
-      totalAdoro: 0,
-      totalAceito: 0,
-      totalLimites: 0,
-      totalNunca: 0
-    };
-    
-    respostas.forEach(r => {
-      [r.dar, r.receber].forEach(resposta => {
-        if (resposta === 'Adoro' || resposta === 'Aproveito') stats.totalAdoro++;
-        else if (resposta === 'Aceito' || resposta === 'Tolero') stats.totalAceito++;
-        else if (resposta === 'Limite rígido') stats.totalLimites++;
-        else if (resposta === 'Nunca experimentei') stats.totalNunca++;
-      });
-    });
-    
-    return stats;
-  }
-
-  // Detectar e carregar resultados compartilhados
-  function verificarResultadoCompartilhado() {
-    const hash = window.location.hash;
-    if (hash.startsWith('#resultado=')) {
-      try {
-        const dadosComprimidos = hash.substring(11); // Remove '#resultado='
-        const dadosString = decodeURIComponent(atob(dadosComprimidos));
-        const dados = JSON.parse(dadosString);
-        
-        // Carregar dados compartilhados
-        respostasUsuario = dados.respostas || [];
-        
-        // Mostrar aviso de visualização
-        mostrarModoVisualizacao(dados);
-        
-        // Mostrar resultados
-        document.getElementById('questionario').classList.add('hidden');
-        document.getElementById('resultados').classList.remove('hidden');
-        mostrarResultadoCompartilhado(dados);
-        
-        return true;
-      } catch (error) {
-        console.error('Erro ao carregar resultado compartilhado:', error);
-        alert('Link de compartilhamento inválido ou corrompido');
-        // Limpar hash inválido
-        window.location.hash = '';
-        return false;
-      }
-    }
-    return false;
-  }
-
-  function mostrarModoVisualizacao(dados) {
-    const container = document.querySelector('.container');
-    const aviso = document.createElement('div');
-    aviso.className = 'modo-visualizacao';
-    
-    const dataFormatada = new Date(dados.timestamp).toLocaleDateString('pt-BR');
-    
-    aviso.innerHTML = `
-      👁️ <strong>Modo Visualização</strong> - Você está visualizando resultados compartilhados
-      <br>
-      <small>Perfil: ${dados.perfil?.posicao || 'N/A'} | Data: ${dataFormatada}</small>
-      <br>
-      <button onclick="window.location.hash=''; location.reload();" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: white; color: #e67e22; border: none; border-radius: 5px; cursor: pointer;">
-        🏠 Fazer Meu Próprio Teste
-      </button>
-    `;
-    
-    container.insertBefore(aviso, container.firstChild);
-  }
-
-  function mostrarResultadoCompartilhado(dados) {
-    const resumo = document.getElementById('resumo');
-    resumo.innerHTML = '';
-    
-    // Não adicionar botão de compartilhamento em modo visualização
-    const agrupado = {};
-    const respostasFiltradas = dados.respostas.filter(r => 
-      r.dar !== 'N/A' || r.receber !== 'N/A'
-    );
-
-    respostasFiltradas.forEach(r => {
-      if (!agrupado[r.categoria]) {
-        agrupado[r.categoria] = { dar: {}, receber: {} };
-      }
-      
-      if (r.dar !== 'N/A') {
-        if (!agrupado[r.categoria].dar[r.dar]) {
-          agrupado[r.categoria].dar[r.dar] = [];
-        }
-        agrupado[r.categoria].dar[r.dar].push(r.pergunta);
-      }
-      
-      if (r.receber !== 'N/A') {
-        if (!agrupado[r.categoria].receber[r.receber]) {
-          agrupado[r.categoria].receber[r.receber] = [];
-        }
-        agrupado[r.categoria].receber[r.receber].push(r.pergunta);
-      }
-    });
-
-    // Adicionar estatísticas
-    adicionarEstatisticasGerais(resumo, respostasFiltradas);
-
-    // Mostrar perfil compartilhado
-    if (dados.perfil) {
-      const perfilDiv = document.createElement('div');
-      perfilDiv.className = 'estatisticas-gerais';
-      perfilDiv.innerHTML = `
-        <h3>👤 Perfil</h3>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Posição</div>
-            <div style="font-weight: 600;">${dados.perfil.posicao}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Tolerância à Dor</div>
-            <div style="font-weight: 600;">${dados.perfil.dor}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Experiência Teórica</div>
-            <div style="font-weight: 600;">${dados.perfil.teorica}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Experiência Prática</div>
-            <div style="font-weight: 600;">${dados.perfil.pratica}</div>
-          </div>
-        </div>
-      `;
-      resumo.appendChild(perfilDiv);
-    }
-
-    // Adicionar resultados por categoria
-    for (const categoria in agrupado) {
-      const secao = document.createElement('div');
-      secao.className = 'resultado-categoria';
-      secao.innerHTML = `<h3>📋 ${categoria}</h3>`;
-      
-      const tabelaDar = criarTabelaResultado(agrupado[categoria].dar, 'DAR');
-      secao.appendChild(tabelaDar);
-      
-      const tabelaReceber = criarTabelaResultado(agrupado[categoria].receber, 'RECEBER');
-      secao.appendChild(tabelaReceber);
-      
-      resumo.appendChild(secao);
-    }
-  }
-
-  // Adicionar estilo para o tema escuro no perguntaAtual
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const perguntaAtual = document.getElementById('perguntaAtual');
-        if (perguntaAtual) {
-          if (document.body.classList.contains('dark')) {
-            perguntaAtual.style.color = '#ecf0f1';
-          } else {
-            perguntaAtual.style.color = '#2c3e50';
-          }
-        }
-      }
-    });
-  });
-
-  observer.observe(document.body, {
-    attributes: true,
-    attributeFilter: ['class']
-  });
-
-  // Funcionalidade dos toggles para condições médicas e limitações
-  document.getElementById('condicaoToggle').addEventListener('change', function() {
-    const campo = document.getElementById('condicao');
-    if (this.checked) {
-      campo.style.display = 'block';
-      campo.focus();
-    } else {
-      campo.style.display = 'none';
-      campo.value = '';
-    }
-  });
-
-  document.getElementById('limitacaoToggle').addEventListener('change', function() {
-    const campo = document.getElementById('limitacao');
-    if (this.checked) {
-      campo.style.display = 'block';
-      campo.focus();
-    } else {
-      campo.style.display = 'none';
-      campo.value = '';
-    }
-  });
-
-  // Verificar resultado compartilhado ao carregar a página
-  window.addEventListener('load', function() {
-    verificarResultadoCompartilhado();
-  });
-</script>
-</body>
-</html>
