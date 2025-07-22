@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "version": "2.0.0",
+    "lastUpdated": "2025-07-22",
+    "totalCategorias": 7
+  },
+  "classificacoes": {
+    "Atos sexuais": {
+      "tipo1": "RECEBER",
+      "tipo2": "FAZER",
+      "icone1": "💖",
+      "icone2": "🔥",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Bondage": {
+      "tipo1": "SER PRESO(A)",
+      "tipo2": "PRENDER",
+      "icone1": "🔒",
+      "icone2": "⛓️",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Sadismo e Masoquismo": {
+      "tipo1": "DAR",
+      "tipo2": "RECEBER",
+      "icone1": "🔥",
+      "icone2": "💖",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Dominação e Submissão": {
+      "tipo1": "MANDAR",
+      "tipo2": "OBEDECER",
+      "icone1": "👑",
+      "icone2": "🙇",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Role Play": {
+      "tipo1": "AUTOR",
+      "tipo2": "VÍTIMA",
+      "icone1": "🎭",
+      "icone2": "🎪",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Fetiches": {
+      "tipo1": "FAZER",
+      "tipo2": "ASSISTIR",
+      "icone1": "🔥",
+      "icone2": "👀",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Equipamentos": {
+      "tipo1": "APLICAR",
+      "tipo2": "RECEBER",
+      "icone1": "🔧",
+      "icone2": "💖",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    }
+  },
+  "categorias": {
+    "Atos sexuais": {
+      "id": "atos_sexuais",
+      "nome": "Atos sexuais",
+      "icone": "💕",
+      "descricao": "Práticas sexuais diversas",
+      "ordem": 1,
+      "ativa": true,
+      "cor": "#e91e63"
+    },
+    "Bondage": {
+      "id": "bondage",
+      "nome": "Bondage",
+      "icone": "⛓️",
+      "descricao": "Práticas de contenção e restrição",
+      "ordem": 2,
+      "ativa": true,
+      "cor": "#9c27b0"
+    },
+    "Sadismo e Masoquismo": {
+      "id": "sadismo_masoquismo",
+      "nome": "Sadismo e Masoquismo",
+      "icone": "⚡",
+      "descricao": "Práticas envolvendo dor e prazer",
+      "ordem": 3,
+      "ativa": true,
+      "cor": "#f44336"
+    },
+    "Dominação e Submissão": {
+      "id": "dominacao_submissao",
+      "nome": "Dominação e Submissão",
+      "icone": "👑",
+      "descricao": "Dinâmicas de poder",
+      "ordem": 4,
+      "ativa": true,
+      "cor": "#3f51b5"
+    },
+    "Role Play": {
+      "id": "role_play",
+      "nome": "Role Play",
+      "icone": "🎭",
+      "descricao": "Representação de papéis",
+      "ordem": 5,
+      "ativa": true,
+      "cor": "#ff9800"
+    },
+    "Fetiches": {
+      "id": "fetiches",
+      "nome": "Fetiches",
+      "icone": "🌟",
+      "descricao": "Fetiches e preferências específicas",
+      "ordem": 6,
+      "ativa": true,
+      "cor": "#4caf50"
+    },
+    "Equipamentos": {
+      "id": "equipamentos",
+      "nome": "Equipamentos",
+      "icone": "🔧",
+      "descricao": "Equipamentos e acessórios",
+      "ordem": 7,
+      "ativa": true,
+      "cor": "#607d8b"
+    }
+  }
+}
