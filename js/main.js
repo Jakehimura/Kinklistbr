@@ -66,4 +66,4 @@ function inicializarInterface() {
   // Gerar opções de perfil dinamicamente
   gerarOpcoesPerfil();
   
-  console.log('✅
+  console.log('✅Interface inicializada');
