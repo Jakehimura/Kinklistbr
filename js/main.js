@@ -1,259 +1,159 @@
 // ===============================
-// SISTEMA DE COMPRESSÃO MÁXIMA COM INTEGRIDADE
+// SISTEMA FIREBASE + FALLBACK
 // ===============================
 
-class CompressorMaximo {
+class CompartilhamentoFirebase {
   constructor() {
-    // Mapeamento otimizado: respostas mais comuns = índices menores
-    this.respostasMap = [
-      'N/A',                    // 0 (mais comum = menos bits)
-      'Aceito',                 // 1  
-      'Adoro',                  // 2
-      'Nunca experimentei',     // 3
-      'Aproveito',              // 4
-      'Tolero',                 // 5
-      'Limite rígido'           // 6 (crítico para segurança)
-    ];
-
-    this.categoriasMap = [
-      'Atos sexuais',           // 0
-      'Bondage',                // 1
-      'Sadismo e Masoquismo',   // 2
-      'Dominação e Submissão',  // 3
-      'Role Play',              // 4
-      'Fetiches',               // 5
-      'Equipamentos'            // 6
-    ];
-
-    // Base85 para máxima eficiência
-    this.charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
-    this.base = this.charset.length;
+    this.databaseURL = 'https://quest-bdsm-default-rtdb.firebaseio.com/';
+    this.initialized = false;
+    this.fallbackMode = false;
   }
 
-  toBase85(num) {
-    if (num === 0n) return 'A';
-    let result = '';
-    while (num > 0n) {
-      result = this.charset[Number(num % BigInt(this.base))] + result;
-      num = num / BigInt(this.base);
-    }
-    return result;
-  }
-
-  fromBase85(str) {
-    let result = 0n;
-    for (let i = 0; i < str.length; i++) {
-      result = result * BigInt(this.base) + BigInt(this.charset.indexOf(str[i]));
-    }
-    return result;
-  }
-
-  comprimirRespostas(respostasUsuario) {
-    if (!respostasUsuario || respostasUsuario.length === 0) {
-      return 'A';
-    }
-
-    const coordenadas = [];
-    
-    respostasUsuario.forEach(resposta => {
-      const catIndex = this.categoriasMap.indexOf(resposta.categoria);
-      const pergIndex = dataManager.obterPerguntasCategoria(resposta.categoria).indexOf(resposta.pergunta);
-      const darIndex = this.respostasMap.indexOf(resposta.dar);
-      const receberIndex = this.respostasMap.indexOf(resposta.receber);
-      
-      if (catIndex !== -1 && pergIndex !== -1 && darIndex !== -1 && receberIndex !== -1) {
-        const packed = (catIndex << 14) | (pergIndex << 6) | (darIndex << 3) | receberIndex;
-        coordenadas.push(packed);
-      }
-    });
-
-    const diferenciais = [coordenadas[0] || 0];
-    
-    for (let i = 1; i < coordenadas.length; i++) {
-      const diff = coordenadas[i] - coordenadas[i-1];
-      diferenciais.push(diff);
-    }
-
-    return this.empacotar(diferenciais);
-  }
-
-  empacotar(numbers) {
-    let resultado = '';
-    
-    const count = numbers.length;
-    resultado += this.toBase85(BigInt(count)) + '.';
-
-    const concatenated = numbers.join(',');
-    
-    let bigNum = 0n;
-    for (let i = 0; i < concatenated.length; i++) {
-      bigNum = bigNum * 256n + BigInt(concatenated.charCodeAt(i));
-    }
-    
-    resultado += this.toBase85(bigNum);
-    
-    return resultado;
-  }
-
-  desempacotar(compactStr) {
-    if (!compactStr || compactStr === 'A') return [];
-    
-    const parts = compactStr.split('.');
-    if (parts.length !== 2) return [];
-    
-    const count = Number(this.fromBase85(parts[0]));
-    const bigNum = this.fromBase85(parts[1]);
-    
-    let resultado = '';
-    let temp = bigNum;
-    
-    while (temp > 0n) {
-      resultado = String.fromCharCode(Number(temp % 256n)) + resultado;
-      temp = temp / 256n;
-    }
-    
-    const numbers = resultado.split(',').map(n => parseInt(n)).filter(n => !isNaN(n));
-    
-    if (numbers.length !== count) {
-      console.warn('Dados corrompidos: contagem não confere');
-      return [];
-    }
-    
-    return numbers;
-  }
-
-  descomprimirRespostas(compactStr) {
-    const diferenciais = this.desempacotar(compactStr);
-    if (diferenciais.length === 0) return [];
-    
-    const coordenadas = [diferenciais[0]];
-    for (let i = 1; i < diferenciais.length; i++) {
-      coordenadas.push(coordenadas[i-1] + diferenciais[i]);
-    }
-
-    const respostas = [];
-    
-    coordenadas.forEach(packed => {
-      if (packed < 0) return;
-      
-      const receberIndex = packed & 0x7;
-      const darIndex = (packed >> 3) & 0x7;
-      const pergIndex = (packed >> 6) & 0xFF;
-      const catIndex = (packed >> 14) & 0x7;
-      
-      const categoria = this.categoriasMap[catIndex];
-      if (categoria && dataManager.perguntas[categoria]) {
-        const pergunta = dataManager.perguntas[categoria][pergIndex];
-        if (pergunta) {
-          respostas.push({
-            categoria: categoria,
-            pergunta: pergunta,
-            dar: this.respostasMap[darIndex] || 'N/A',
-            receber: this.respostasMap[receberIndex] || 'N/A'
-          });
-        }
-      }
-    });
-    
-    return respostas;
-  }
-
-  comprimirPerfil() {
-    const perfil = {
-      posicao: document.getElementById('posicao')?.value || '',
-      dor: document.getElementById('dor')?.value || '',
-      teorica: document.getElementById('teorica')?.value || '',
-      pratica: document.getElementById('pratica')?.value || ''
-    };
-
-    const opcoes = dataManager.opcoesPerfil;
-    
-    const indices = [
-      Math.max(0, opcoes.posicoes?.indexOf(perfil.posicao) || 0),
-      Math.max(0, opcoes.toleranciaDor?.indexOf(perfil.dor) || 0),
-      Math.max(0, opcoes.experiencia?.indexOf(perfil.teorica) || 0),
-      Math.max(0, opcoes.experiencia?.indexOf(perfil.pratica) || 0)
-    ];
-
-    const packed = (indices[0] << 12) | (indices[1] << 8) | (indices[2] << 4) | indices[3];
-    return this.toBase85(BigInt(packed));
-  }
-
-  descomprimirPerfil(compactStr) {
-    if (!compactStr) return this.getPerfilPadrao();
-    
+  async initialize() {
     try {
-      const packed = Number(this.fromBase85(compactStr));
+      // Verificar se Firebase está disponível
+      if (typeof fetch === 'undefined') {
+        throw new Error('Fetch API não disponível');
+      }
       
-      const indices = [
-        (packed >> 12) & 0xF,
-        (packed >> 8) & 0xF,
-        (packed >> 4) & 0xF,
-        packed & 0xF
-      ];
-
-      const opcoes = dataManager.opcoesPerfil;
+      // Testar conectividade com Firebase
+      const testUrl = `${this.databaseURL}.json`;
+      const response = await fetch(testUrl, { method: 'GET' });
       
-      return {
-        posicao: opcoes.posicoes?.[indices[0]] || 'Top',
-        dor: opcoes.toleranciaDor?.[indices[1]] || 'Média',
-        teorica: opcoes.experiencia?.[indices[2]] || '0-3 anos',
-        pratica: opcoes.experiencia?.[indices[3]] || '0-3 anos'
-      };
+      if (!response.ok) {
+        throw new Error('Firebase inacessível');
+      }
+      
+      this.initialized = true;
+      console.log('✅ Firebase inicializado com sucesso');
+      return true;
+      
     } catch (error) {
-      console.warn('Erro ao descomprimir perfil:', error);
-      return this.getPerfilPadrao();
+      console.warn('⚠️ Firebase indisponível, usando fallback:', error.message);
+      this.fallbackMode = true;
+      return false;
     }
   }
 
-  getPerfilPadrao() {
-    return {
-      posicao: 'Top',
-      dor: 'Média',
-      teorica: '0-3 anos',
-      pratica: '0-3 anos'
-    };
+  generateUniqueId() {
+    // Gerar ID único de 8 caracteres
+    return Math.random().toString(36).substring(2, 10);
   }
 
-  calcularChecksum(dados) {
-    let checksum = 0;
-    for (let i = 0; i < dados.length; i++) {
-      checksum = (checksum + dados.charCodeAt(i) * (i + 1)) % 65536;
+  async salvarResultado(dados) {
+    if (this.fallbackMode) {
+      return this.salvarFallback(dados);
     }
-    return this.toBase85(BigInt(checksum));
+
+    try {
+      const resultId = this.generateUniqueId();
+      const url = `${this.databaseURL}results/${resultId}.json`;
+      
+      const payload = {
+        ...dados,
+        timestamp: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() // 90 dias
+      };
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Firebase erro: ${response.status}`);
+      }
+
+      console.log('✅ Resultado salvo no Firebase:', resultId);
+      return { success: true, id: resultId, size: resultId.length + 20 }; // ~28 chars total
+      
+    } catch (error) {
+      console.warn('⚠️ Erro Firebase, tentando fallback:', error.message);
+      return this.salvarFallback(dados);
+    }
   }
 
-  criarLinkCompleto(respostasUsuario) {
-    const respostasComp = this.comprimirRespostas(respostasUsuario);
-    const perfilComp = this.comprimirPerfil();
-    
-    const dados = `${respostasComp}~${perfilComp}`;
-    const checksum = this.calcularChecksum(dados);
-    
-    return `${dados}#${checksum}`;
+  async carregarResultado(resultId) {
+    if (this.fallbackMode) {
+      return this.carregarFallback(resultId);
+    }
+
+    try {
+      const url = `${this.databaseURL}results/${resultId}.json`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Resultado não encontrado');
+        }
+        throw new Error(`Firebase erro: ${response.status}`);
+      }
+
+      const dados = await response.json();
+      
+      if (!dados) {
+        throw new Error('Resultado não encontrado');
+      }
+
+      // Verificar expiração
+      if (dados.expiresAt && new Date(dados.expiresAt) < new Date()) {
+        throw new Error('Resultado expirado');
+      }
+
+      console.log('✅ Resultado carregado do Firebase:', resultId);
+      return { success: true, dados: dados };
+      
+    } catch (error) {
+      console.warn('⚠️ Erro ao carregar do Firebase:', error.message);
+      
+      // Se for erro de não encontrado, não tenta fallback
+      if (error.message.includes('não encontrado') || error.message.includes('expirado')) {
+        throw error;
+      }
+      
+      return this.carregarFallback(resultId);
+    }
   }
 
-  carregarLinkCompleto(dadosComprimidos) {
-    const parts = dadosComprimidos.split('#');
-    if (parts.length !== 2) {
-      throw new Error('Formato de link inválido');
+  // Sistema de fallback (Base64 simples)
+  salvarFallback(dados) {
+    try {
+      const jsonString = JSON.stringify(dados);
+      const base64Data = btoa(unescape(encodeURIComponent(jsonString)));
+      
+      console.log('🔄 Usando sistema fallback (Base64)');
+      return { 
+        success: true, 
+        id: base64Data, 
+        size: base64Data.length,
+        fallback: true 
+      };
+      
+    } catch (error) {
+      console.error('❌ Erro no fallback:', error);
+      return { success: false, error: error.message };
     }
+  }
 
-    const [dados, checksumRecebido] = parts;
-    const checksumCalculado = this.calcularChecksum(dados);
-    
-    if (checksumRecebido !== checksumCalculado) {
-      throw new Error('Link corrompido - checksum não confere');
+  carregarFallback(base64Data) {
+    try {
+      const jsonString = decodeURIComponent(escape(atob(base64Data)));
+      const dados = JSON.parse(jsonString);
+      
+      console.log('🔄 Carregado via sistema fallback');
+      return { success: true, dados: dados, fallback: true };
+      
+    } catch (error) {
+      throw new Error('Dados de fallback corrompidos');
     }
-
-    const [respostasStr, perfilStr] = dados.split('~');
-    
-    return {
-      respostas: this.descomprimirRespostas(respostasStr),
-      perfil: this.descomprimirPerfil(perfilStr)
-    };
   }
 }
+
+// Instância global
+const firebaseShare = new CompartilhamentoFirebase();
 
 // ===============================
 // APLICAÇÃO PRINCIPAL
@@ -261,9 +161,6 @@ class CompressorMaximo {
 
 // Instância global do gerenciador de dados
 const dataManager = new DataManager();
-
-// Instância do compressor
-const compressorMaximo = new CompressorMaximo();
 
 // Variáveis globais do app
 let listaPerguntas = [];
@@ -787,7 +684,7 @@ function adicionarBotaoCompartilhar(container) {
   
   compartilhar.innerHTML = `
     <h3>🔗 Compartilhar Resultados</h3>
-    <p>Gere um link ultra-compacto para compartilhar seus resultados com segurança</p>
+    <p>Gere um link ultra-compacto para compartilhar seus resultados com outras pessoas</p>
     <button class="btn-compartilhar" onclick="copiarLinkCompartilhamento()">
       📋 Copiar Link de Compartilhamento
     </button>
@@ -892,10 +789,10 @@ function criarTabelaResultado(dados, titulo, categoria) {
 }
 
 // ===============================
-// FUNÇÕES DE COMPARTILHAMENTO COM COMPRESSÃO MÁXIMA
+// FUNÇÕES DE COMPARTILHAMENTO FIREBASE + FALLBACK
 // ===============================
 
-function copiarLinkCompartilhamento() {
+async function copiarLinkCompartilhamento() {
   const botao = event.target;
   const textoOriginal = botao.textContent;
   
@@ -904,115 +801,192 @@ function copiarLinkCompartilhamento() {
       throw new Error('Nenhuma resposta para compartilhar');
     }
 
-    const dadosComprimidos = compressorMaximo.criarLinkCompleto(respostasUsuario);
+    // Mostrar loading
+    botao.textContent = '⏳ Gerando...';
+    botao.disabled = true;
+
+    // Inicializar Firebase se necessário
+    if (!firebaseShare.initialized && !firebaseShare.fallbackMode) {
+      await firebaseShare.initialize();
+    }
+
+    // Preparar dados para compartilhamento
+    const dadosCompartilhamento = {
+      respostas: respostasUsuario,
+      perfil: {
+        posicao: document.getElementById('posicao')?.value || 'Top',
+        dor: document.getElementById('dor')?.value || 'Média',
+        teorica: document.getElementById('teorica')?.value || '0-3 anos',
+        pratica: document.getElementById('pratica')?.value || '0-3 anos'
+      },
+      relacionamentos: Array.from(
+        document.querySelectorAll('.section:nth-child(3) .toggle.active')
+      ).map(btn => btn.textContent.trim()),
+      locais: Array.from(
+        document.querySelectorAll('.section:nth-child(4) .toggle.active')
+      ).map(btn => btn.textContent.trim())
+    };
+
+    // Salvar dados
+    const resultado = await firebaseShare.salvarResultado(dadosCompartilhamento);
+    
+    if (!resultado.success) {
+      throw new Error(resultado.error || 'Erro ao salvar');
+    }
+
+    // Gerar link
     const urlAtual = window.location.href.split('#')[0];
-    const link = `${urlAtual}#x=${dadosComprimidos}`;
+    const linkType = resultado.fallback ? 'share' : 'r';
+    const link = `${urlAtual}#${linkType}=${resultado.id}`;
     
-    const tamanhoOriginal = JSON.stringify(respostasUsuario).length;
-    const tamanhoComprimido = dadosComprimidos.length;
-    const taxaCompressao = Math.round((1 - tamanhoComprimido / tamanhoOriginal) * 100);
+    // Copiar para clipboard
+    await navigator.clipboard.writeText(link);
     
-    console.log('📦 Compressão máxima realizada:');
-    console.log(`   • ${respostasUsuario.length} respostas preservadas`);
-    console.log(`   • ${tamanhoOriginal} → ${tamanhoComprimido} chars (${taxaCompressao}% redução)`);
-    console.log(`   • Link final: ${link.length} chars`);
+    // Feedback de sucesso
+    botao.textContent = '✅ Link Copiado!';
+    botao.style.background = '#27ae60';
     
-    navigator.clipboard.writeText(link).then(() => {
-      botao.textContent = '✅ Link Copiado!';
-      botao.style.background = '#27ae60';
-      
-      mostrarEstatisticasCompressao(link, {
-        respostas: respostasUsuario.length,
-        original: tamanhoOriginal,
-        comprimido: tamanhoComprimido,
-        taxa: taxaCompressao,
-        linkSize: link.length
-      });
-      
-      setTimeout(() => {
-        botao.textContent = textoOriginal;
-        botao.style.background = '';
-      }, 3000);
-      
-    }).catch(() => {
-      const input = document.createElement('input');
-      input.value = link;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('copy');
-      document.body.removeChild(input);
-      
-      botao.textContent = '✅ Link Copiado!';
-      botao.style.background = '#27ae60';
-      
-      mostrarEstatisticasCompressao(link, {
-        respostas: respostasUsuario.length,
-        original: tamanhoOriginal,
-        comprimido: tamanhoComprimido,
-        taxa: taxaCompressao,
-        linkSize: link.length
-      });
-    });
-    
-  } catch (error) {
-    console.error('Erro na compressão:', error);
-    botao.textContent = '❌ Erro';
-    botao.style.background = '#e74c3c';
+    // Mostrar informações do link
+    mostrarInformacoesLink(link, resultado, dadosCompartilhamento);
     
     setTimeout(() => {
       botao.textContent = textoOriginal;
       botao.style.background = '';
+      botao.disabled = false;
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Erro ao gerar link:', error);
+    
+    botao.textContent = '❌ Erro';
+    botao.style.background = '#e74c3c';
+    
+    // Mostrar erro detalhado
+    mostrarErroCompartilhamento(error.message);
+    
+    setTimeout(() => {
+      botao.textContent = textoOriginal;
+      botao.style.background = '';
+      botao.disabled = false;
     }, 3000);
   }
 }
 
-function mostrarEstatisticasCompressao(link, stats) {
+function mostrarInformacoesLink(link, resultado, dados) {
   const linkDiv = document.getElementById('linkGerado');
   const linkTexto = document.getElementById('linkTexto');
   
   linkTexto.textContent = link;
   linkDiv.style.display = 'block';
   
-  const statsDiv = document.createElement('div');
-  statsDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(0,255,0,0.1); border-radius: 8px; font-size: 0.9rem;';
-  statsDiv.innerHTML = `
-    <strong>🛡️ Compressão Máxima com Integridade Total:</strong><br>
-    • ✅ ${stats.respostas} respostas preservadas (100% precisão)<br>
-    • 📦 ${stats.original} → ${stats.comprimido} caracteres (${stats.taxa}% redução)<br>
-    • 🔗 Link final: ${stats.linkSize} caracteres<br>
-    • 🔒 Checksum incluído para verificar integridade<br>
-    • ⚡ Otimizado para sessões BDSM seguras
-  `;
+  // Remover info anterior
+  const infoAnterior = linkDiv.querySelector('.info-link');
+  if (infoAnterior) {
+    infoAnterior.remove();
+  }
   
-  linkDiv.appendChild(statsDiv);
+  // Calcular estatísticas
+  const tamanhoOriginal = JSON.stringify(dados).length;
+  const reducao = Math.round((1 - resultado.size / tamanhoOriginal) * 100);
+  
+  const infoDiv = document.createElement('div');
+  infoDiv.className = 'info-link';
+  infoDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(0,255,0,0.1); border-radius: 8px; font-size: 0.9rem;';
+  
+  if (resultado.fallback) {
+    infoDiv.innerHTML = `
+      <strong>🔄 Sistema Fallback Ativo</strong><br>
+      • 📊 ${dados.respostas.length} respostas preservadas<br>
+      • 🔗 Link: ${link.length} caracteres<br>
+      • ⚠️ Firebase temporariamente indisponível<br>
+      • ✅ Dados funcionais via Base64
+    `;
+  } else {
+    infoDiv.innerHTML = `
+      <strong>🔥 Firebase Ultra-Compacto!</strong><br>
+      • 📊 ${dados.respostas.length} respostas preservadas<br>
+      • 📦 ${tamanhoOriginal} → ${resultado.size} chars (${reducao}% redução)<br>
+      • 🔗 Link final: ${link.length} caracteres<br>
+      • ⚡ ID único: ${resultado.id}<br>
+      • 🗓️ Expira em 90 dias
+    `;
+  }
+  
+  linkDiv.appendChild(infoDiv);
 }
 
-function verificarResultadoCompartilhado() {
+function mostrarErroCompartilhamento(mensagem) {
+  const linkDiv = document.getElementById('linkGerado');
+  
+  const erroDiv = document.createElement('div');
+  erroDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(255,0,0,0.1); border-radius: 8px; font-size: 0.9rem; color: #e74c3c;';
+  erroDiv.innerHTML = `
+    <strong>❌ Erro ao Compartilhar</strong><br>
+    ${mensagem}<br>
+    <small>Tente novamente em alguns segundos</small>
+  `;
+  
+  linkDiv.appendChild(erroDiv);
+  linkDiv.style.display = 'block';
+  
+  // Remover erro após 5 segundos
+  setTimeout(() => {
+    erroDiv.remove();
+    if (linkDiv.children.length <= 2) {
+      linkDiv.style.display = 'none';
+    }
+  }, 5000);
+}
+
+async function verificarResultadoCompartilhado() {
   const hash = window.location.hash;
   
-  if (hash.startsWith('#x=')) {
+  // Firebase links (curtos)
+  if (hash.startsWith('#r=')) {
     try {
-      const dadosComprimidos = hash.substring(3);
-      const dadosCarregados = compressorMaximo.carregarLinkCompleto(dadosComprimidos);
+      const resultId = hash.substring(3);
       
-      if (dadosCarregados.respostas.length === 0) {
-        throw new Error('Nenhuma resposta válida encontrada');
+      // Inicializar Firebase
+      await firebaseShare.initialize();
+      
+      // Carregar dados
+      const resultado = await firebaseShare.carregarResultado(resultId);
+      
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Erro ao carregar');
       }
       
-      respostasUsuario = dadosCarregados.respostas;
-      aplicarPerfilCarregado(dadosCarregados.perfil);
-      mostrarModoVisualizacao(dadosCarregados.respostas.length, dadosCarregados.perfil);
+      // Aplicar dados
+      aplicarDadosCompartilhados(resultado.dados, resultado.fallback);
       
-      document.getElementById('questionario').classList.add('hidden');
-      document.getElementById('resultados').classList.remove('hidden');
-      mostrarResultado();
-      
-      console.log('✅ Link verificado e carregado:', dadosCarregados.respostas.length, 'respostas');
+      console.log('✅ Resultado compartilhado carregado via Firebase');
       return true;
       
     } catch (error) {
-      console.error('Erro ao carregar link:', error);
-      mostrarMensagemErro(`Link inválido: ${error.message}`);
+      console.error('Erro ao carregar resultado compartilhado:', error);
+      mostrarErroCarregamento(error.message);
+      return false;
+    }
+  }
+  
+  // Fallback links (longos)
+  if (hash.startsWith('#share=')) {
+    try {
+      const base64Data = hash.substring(7);
+      const resultado = firebaseShare.carregarFallback(base64Data);
+      
+      if (!resultado.success) {
+        throw new Error('Dados corrompidos');
+      }
+      
+      aplicarDadosCompartilhados(resultado.dados, true);
+      
+      console.log('✅ Resultado compartilhado carregado via fallback');
+      return true;
+      
+    } catch (error) {
+      console.error('Erro ao carregar fallback:', error);
+      mostrarErroCarregamento('Link de fallback corrompido');
       return false;
     }
   }
@@ -1020,30 +994,76 @@ function verificarResultadoCompartilhado() {
   return false;
 }
 
-function aplicarPerfilCarregado(perfil) {
-  const selects = {
-    posicao: document.getElementById('posicao'),
-    dor: document.getElementById('dor'), 
-    teorica: document.getElementById('teorica'),
-    pratica: document.getElementById('pratica')
-  };
+function aplicarDadosCompartilhados(dados, isFallback) {
+  // Aplicar respostas
+  respostasUsuario = dados.respostas || [];
   
-  Object.entries(selects).forEach(([key, select]) => {
-    if (select && perfil[key]) {
-      select.value = perfil[key];
-    }
-  });
+  // Aplicar perfil
+  if (dados.perfil) {
+    const selects = {
+      posicao: document.getElementById('posicao'),
+      dor: document.getElementById('dor'),
+      teorica: document.getElementById('teorica'),
+      pratica: document.getElementById('pratica')
+    };
+    
+    Object.entries(selects).forEach(([key, select]) => {
+      if (select && dados.perfil[key]) {
+        select.value = dados.perfil[key];
+      }
+    });
+  }
+  
+  // Aplicar seleções
+  aplicarSelecoes(dados.relacionamentos || [], dados.locais || []);
+  
+  // Mostrar modo visualização
+  mostrarModoVisualizacao(dados, isFallback);
+  
+  // Ir para resultados
+  document.getElementById('questionario').classList.add('hidden');
+  document.getElementById('resultados').classList.remove('hidden');
+  mostrarResultado();
 }
 
-function mostrarModoVisualizacao(totalRespostas, perfil) {
+function aplicarSelecoes(relacionamentos, locais) {
+  // Aplicar relacionamentos
+  if (relacionamentos.length > 0) {
+    const botoesRel = document.querySelectorAll('.section:nth-child(3) .toggle');
+    botoesRel.forEach(botao => {
+      if (relacionamentos.includes(botao.textContent.trim())) {
+        botao.classList.add('active');
+      }
+    });
+  }
+  
+  // Aplicar locais
+  if (locais.length > 0) {
+    const botoesLoc = document.querySelectorAll('.section:nth-child(4) .toggle');
+    botoesLoc.forEach(botao => {
+      if (locais.includes(botao.textContent.trim())) {
+        botao.classList.add('active');
+      }
+    });
+  }
+}
+
+function mostrarModoVisualizacao(dados, isFallback) {
   const container = document.querySelector('.container');
   const aviso = document.createElement('div');
   aviso.className = 'modo-visualizacao';
   
+  const dataFormatada = dados.timestamp ? 
+    new Date(dados.timestamp).toLocaleDateString('pt-BR') : 
+    'Data desconhecida';
+  
+  const sistemaUsado = isFallback ? 'Sistema Fallback' : 'Firebase';
+  const icone = isFallback ? '🔄' : '🔥';
+  
   aviso.innerHTML = `
-    🛡️ <strong>Resultado Compartilhado</strong> - Dados verificados e íntegros
+    ${icone} <strong>Resultado Compartilhado</strong> - Carregado via ${sistemaUsado}
     <br>
-    <small>📊 ${totalRespostas} respostas | 👤 ${perfil.posicao} | ⚡ ${perfil.dor} | ✅ Checksum OK</small>
+    <small>📊 ${dados.respostas?.length || 0} respostas | 👤 ${dados.perfil?.posicao || 'N/A'} | 📅 ${dataFormatada}</small>
     <br>
     <button onclick="window.location.hash=''; location.reload();" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: white; color: #e67e22; border: none; border-radius: 5px; cursor: pointer;">
       🏠 Fazer Meu Próprio Teste
@@ -1052,21 +1072,24 @@ function mostrarModoVisualizacao(totalRespostas, perfil) {
   
   container.insertBefore(aviso, container.firstChild);
 
+  // Ocultar formulários
   document.querySelectorAll('.section').forEach((secao, index) => {
-    if (index < 4) secao.style.display = 'none';
+    if (index < 4) {
+      secao.style.display = 'none';
+    }
   });
 }
 
-function mostrarMensagemErro(mensagem) {
+function mostrarErroCarregamento(mensagem) {
   const container = document.querySelector('.container');
   const erro = document.createElement('div');
   erro.className = 'modo-visualizacao';
   erro.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
   
   erro.innerHTML = `
-    ❌ <strong>Erro de Integridade</strong><br>
+    ❌ <strong>Erro ao Carregar</strong><br>
     ${mensagem}<br>
-    <small>⚠️ Por segurança, não é possível carregar dados corrompidos</small>
+    <small>Verifique se o link está correto e completo</small>
     <br>
     <button onclick="window.location.hash=''; location.reload();" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: white; color: #e74c3c; border: none; border-radius: 5px; cursor: pointer;">
       🏠 Fazer Novo Teste
