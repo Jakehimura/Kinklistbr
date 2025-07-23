@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Questionário BDSM</title>
   
-  <!-- Bibliotecas para Export PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
   <style>
     * {
       margin: 0;
@@ -1090,6 +1086,66 @@
     </div>
   </div>
 
+  <!-- Bibliotecas para Export PDF - ORDEM E VERIFICAÇÃO CORRIGIDAS! -->
+  <script>
+    // Verificar se as bibliotecas foram carregadas CORRETAMENTE
+    window.addEventListener('load', function() {
+      console.log('🔍 Verificando bibliotecas...');
+      
+      // Verificar html2canvas
+      if (typeof html2canvas === 'undefined') {
+        console.error('❌ html2canvas não carregado');
+      } else {
+        console.log('✅ html2canvas carregado:', typeof html2canvas);
+      }
+      
+      // Verificar jsPDF - FORMA CORRETA
+      if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+        console.error('❌ jsPDF não carregado');
+      } else {
+        // Definir referência global correta
+        if (typeof jsPDF !== 'undefined') {
+          window.jsPDF = jsPDF;
+          console.log('✅ jsPDF carregado via jsPDF global');
+        } else if (window.jspdf && window.jspdf.jsPDF) {
+          window.jsPDF = window.jspdf.jsPDF;
+          console.log('✅ jsPDF carregado via window.jspdf.jsPDF');
+        }
+        console.log('✅ jsPDF final:', typeof window.jsPDF);
+      }
+    });
+  </script>
+  
+  <!-- HTML2Canvas - Versão mais recente e estável -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <!-- jsPDF - Versão UMD mais recente -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Fallback: Tentar versão diferente se a primeira falhar -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Se jsPDF não carregou, tentar versão alternativa
+      if (typeof window.jsPDF === 'undefined' && typeof jsPDF === 'undefined') {
+        console.warn('⚠️ Tentando carregar jsPDF alternativo...');
+        
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js';
+        script.onload = function() {
+          if (typeof jsPDF !== 'undefined') {
+            window.jsPDF = jsPDF;
+            console.log('✅ jsPDF carregado via unpkg:', typeof window.jsPDF);
+          }
+        };
+        script.onerror = function() {
+          console.error('❌ Fallback jsPDF também falhou');
+        };
+        document.head.appendChild(script);
+      }
+    });
+  </script>
+
+  <!-- Scripts da aplicação -->
   <script src="js/dataManager.js"></script>
   <script src="js/main.js"></script>
 </body>
