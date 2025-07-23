@@ -1761,8 +1761,14 @@ async function gerarImagem(container) {
 // FUNÇÕES DE COMPARAÇÃO E EXPORT
 // ===============================
 
-// Placeholder para comparação de perfis
+// Função de comparação integrada
 function abrirComparacao() {
-  console.log('🔗 Abrindo sistema de comparação...');
-  alert('Sistema de comparação será implementado em breve!');
+  // Verificar se há resultados para comparar
+  if (!respostasUsuario || respostasUsuario.length === 0) {
+    alert('❌ Complete o questionário primeiro para poder comparar com outros perfis!');
+    return;
+  }
+
+  // Usar o sistema de comparação
+  compatibilitySystem.openComparisonModal();
 }
