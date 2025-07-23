@@ -1631,18 +1631,24 @@ function restaurarLayoutOriginal(originalElements) {
 // Gerar PDF para desktop
 async function gerarPDF(container) {
   try {
-    // Garantir que jsPDF está disponível
-    if (typeof window.jsPDF === 'undefined') {
-      throw new Error('jsPDF não carregado');
+    // Verificar se jsPDF está disponível - FORMA CORRETA
+    let jsPDFConstructor = window.jsPDF || jsPDF || (window.jspdf && window.jspdf.jsPDF);
+    
+    if (!jsPDFConstructor) {
+      throw new Error('jsPDF não está disponível. Verifique se a biblioteca foi carregada corretamente.');
     }
     
+    console.log('✅ Usando jsPDF:', typeof jsPDFConstructor);
+    
     // Configurações do PDF
-    const pdf = new window.jsPDF({
+    const pdf = new jsPDFConstructor({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
       compress: true
     });
+    
+    console.log('📄 jsPDF inicializado, gerando canvas...');
     
     // Configurações do html2canvas
     const canvas = await html2canvas(container, {
@@ -1653,8 +1659,11 @@ async function gerarPDF(container) {
       width: container.scrollWidth,
       height: container.scrollHeight,
       scrollX: 0,
-      scrollY: 0
+      scrollY: 0,
+      logging: false // Reduzir logs
     });
+    
+    console.log('🖼️ Canvas gerado:', canvas.width + 'x' + canvas.height);
     
     const imgData = canvas.toDataURL('image/png', 0.95);
     
@@ -1668,6 +1677,8 @@ async function gerarPDF(container) {
     
     let heightLeft = imgHeight;
     let position = 10; // 10mm margem superior
+    
+    console.log('📐 Adicionando imagem ao PDF...');
     
     // Primeira página
     pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight, '', 'FAST');
@@ -1686,13 +1697,15 @@ async function gerarPDF(container) {
     const timestamp = agora.toISOString().slice(0, 19).replace(/:/g, '-');
     const nomeArquivo = `questionario-bdsm-${timestamp}.pdf`;
     
+    console.log('💾 Salvando PDF:', nomeArquivo);
+    
     // Download
     pdf.save(nomeArquivo);
     
     console.log('✅ PDF gerado com sucesso:', nomeArquivo);
     
   } catch (error) {
-    console.error('Erro ao gerar PDF:', error);
+    console.error('Erro detalhado ao gerar PDF:', error);
     throw new Error(`Falha ao gerar PDF: ${error.message}`);
   }
 }
