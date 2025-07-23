@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "version": "3.0.0",
+    "version": "3.1.0",
     "lastUpdated": "2025-07-22",
-    "totalPerguntas": 348
+    "totalPerguntas": 393
   },
   "perguntas": {
     "Atos sexuais": [
@@ -44,8 +44,6 @@
       "Restrição de movimentos 3-12 horas",
       "Equipamentos restritivos de couro",
       "Equipamentos restritivos Metálicos",
-      "Amarrações básicas",
-      "Suspensão básica",
       "Restrição Genital",
       "Mumificação",
       "Contenção (Celas / Gaiolas/ Jaulas)",
@@ -53,6 +51,28 @@
       "Gags",
       "Privação sensorial",
       "Dispositivos de castidade"
+    ],
+    "Shibari/Rope Play": [
+      "Amarrações básicas com corda",
+      "Shibari tradicional japonês",
+      "Kinbaku erótico",
+      "Suspensão básica com cordas",
+      "Suspensão vertical",
+      "Suspensão horizontal",
+      "Suspensão invertida",
+      "Padrões de cordas decorativos",
+      "Bondage de torso",
+      "Bondage de braços",
+      "Bondage de pernas",
+      "Hog-tie com cordas",
+      "Frogtie com cordas",
+      "Bondage de peitos/seios",
+      "Bondage genital com cordas",
+      "Corda de cânhamo natural",
+      "Cordas de algodão",
+      "Cordas sintéticas",
+      "Auto-bondage com cordas",
+      "Demonstrações públicas de Shibari"
     ],
     "Sadismo e Masoquismo": [
       "Palmada",
@@ -86,7 +106,6 @@
       "Luta livre",
       "Dilatação - Vaginal",
       "Dilatação - Anal",
-      "Abuso Verbal",
       "Marcas permanentes",
       "Cell Popping / Micro Branding",
       "Injeções",
@@ -130,11 +149,37 @@
       "Servir como Móvel",
       "Servir como Arte",
       "Servir como cinzeiro",
-      "Servir como banheiro",
       "Bissexualidade forçada",
       "Acessório simbólico",
       "Condições de sono",
       "Motorista"
+    ],
+    "Humilhação e Degradação": [
+      "Abuso Verbal",
+      "Humilhação verbal (privado)",
+      "Humilhação verbal (público)",
+      "Degradação psicológica",
+      "Xingamentos e ofensas",
+      "Ser chamado de nomes degradantes",
+      "Humilhação corporal",
+      "Exposição forçada",
+      "Nudez em público",
+      "Exibição de partes íntimas",
+      "Servir como banheiro",
+      "Servir como objeto",
+      "Ignorar completamente",
+      "Tratamento como animal",
+      "Comer do chão",
+      "Usar coleira em público",
+      "Roupas humilhantes",
+      "Maquiagem degradante",
+      "Escrita no corpo",
+      "Fotos/vídeos humilhantes",
+      "Humilhação sexual",
+      "Comparações humilhantes",
+      "Ridicularização do corpo",
+      "Diminuição da autoestima",
+      "Controle de higiene pessoal"
     ],
     "Role Play": [
       "Chefe/Secretária",
@@ -226,7 +271,6 @@
     ],
     "Equipamentos de Contenção": [
       "Cintos/tiras de couro",
-      "Corda de cânhamo",
       "Correntes",
       "Coleiras",
       "Coleiras de Postura",
@@ -242,10 +286,6 @@
       "Trelas de cavalo",
       "Jaquetas de bondage",
       "Gaiolas",
-      "Amarrações complexas / Shibari",
-      "Suspensão - Vertical",
-      "Suspensão - Horizontal",
-      "Suspensão - Invertida",
       "Vendas",
       "Capuzes",
       "Máscaras",
@@ -311,9 +351,7 @@
       "Fluidos Corporais - No rosto",
       "Fluidos Corporais - Na boca",
       "Fluidos Corporais - Ingerir",
-      "Chuva Dourada",
-      "Humilhação (privado)",
-      "Humilhação pública"
+      "Chuva Dourada"
     ]
   }
 }
