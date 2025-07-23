@@ -1092,3 +1092,18 @@ function mostrarErroCarregamento(mensagem) {
   
   container.insertBefore(erro, container.firstChild);
 }
+// ===============================
+// FUNÇÕES DE COMPARAÇÃO E EXPORT
+// ===============================
+
+// Placeholder para comparação de perfis
+function abrirComparacao() {
+  console.log('🔗 Abrindo sistema de comparação...');
+  alert('Sistema de comparação será implementado agora!');
+}
+
+// Placeholder para export PDF
+function exportarPDF() {
+  console.log('📄 Iniciando export PDF...');
+  alert('Export PDF será implementado agora!');
+}
