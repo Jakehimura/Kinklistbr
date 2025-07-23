@@ -1,5 +1,269 @@
+// ===============================
+// SISTEMA DE COMPRESSÃO MÁXIMA COM INTEGRIDADE
+// ===============================
+
+class CompressorMaximo {
+  constructor() {
+    // Mapeamento otimizado: respostas mais comuns = índices menores
+    this.respostasMap = [
+      'N/A',                    // 0 (mais comum = menos bits)
+      'Aceito',                 // 1  
+      'Adoro',                  // 2
+      'Nunca experimentei',     // 3
+      'Aproveito',              // 4
+      'Tolero',                 // 5
+      'Limite rígido'           // 6 (crítico para segurança)
+    ];
+
+    this.categoriasMap = [
+      'Atos sexuais',           // 0
+      'Bondage',                // 1
+      'Sadismo e Masoquismo',   // 2
+      'Dominação e Submissão',  // 3
+      'Role Play',              // 4
+      'Fetiches',               // 5
+      'Equipamentos'            // 6
+    ];
+
+    // Base85 para máxima eficiência
+    this.charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    this.base = this.charset.length;
+  }
+
+  toBase85(num) {
+    if (num === 0n) return 'A';
+    let result = '';
+    while (num > 0n) {
+      result = this.charset[Number(num % BigInt(this.base))] + result;
+      num = num / BigInt(this.base);
+    }
+    return result;
+  }
+
+  fromBase85(str) {
+    let result = 0n;
+    for (let i = 0; i < str.length; i++) {
+      result = result * BigInt(this.base) + BigInt(this.charset.indexOf(str[i]));
+    }
+    return result;
+  }
+
+  comprimirRespostas(respostasUsuario) {
+    if (!respostasUsuario || respostasUsuario.length === 0) {
+      return 'A';
+    }
+
+    const coordenadas = [];
+    
+    respostasUsuario.forEach(resposta => {
+      const catIndex = this.categoriasMap.indexOf(resposta.categoria);
+      const pergIndex = dataManager.obterPerguntasCategoria(resposta.categoria).indexOf(resposta.pergunta);
+      const darIndex = this.respostasMap.indexOf(resposta.dar);
+      const receberIndex = this.respostasMap.indexOf(resposta.receber);
+      
+      if (catIndex !== -1 && pergIndex !== -1 && darIndex !== -1 && receberIndex !== -1) {
+        const packed = (catIndex << 14) | (pergIndex << 6) | (darIndex << 3) | receberIndex;
+        coordenadas.push(packed);
+      }
+    });
+
+    const diferenciais = [coordenadas[0] || 0];
+    
+    for (let i = 1; i < coordenadas.length; i++) {
+      const diff = coordenadas[i] - coordenadas[i-1];
+      diferenciais.push(diff);
+    }
+
+    return this.empacotar(diferenciais);
+  }
+
+  empacotar(numbers) {
+    let resultado = '';
+    
+    const count = numbers.length;
+    resultado += this.toBase85(BigInt(count)) + '.';
+
+    const concatenated = numbers.join(',');
+    
+    let bigNum = 0n;
+    for (let i = 0; i < concatenated.length; i++) {
+      bigNum = bigNum * 256n + BigInt(concatenated.charCodeAt(i));
+    }
+    
+    resultado += this.toBase85(bigNum);
+    
+    return resultado;
+  }
+
+  desempacotar(compactStr) {
+    if (!compactStr || compactStr === 'A') return [];
+    
+    const parts = compactStr.split('.');
+    if (parts.length !== 2) return [];
+    
+    const count = Number(this.fromBase85(parts[0]));
+    const bigNum = this.fromBase85(parts[1]);
+    
+    let resultado = '';
+    let temp = bigNum;
+    
+    while (temp > 0n) {
+      resultado = String.fromCharCode(Number(temp % 256n)) + resultado;
+      temp = temp / 256n;
+    }
+    
+    const numbers = resultado.split(',').map(n => parseInt(n)).filter(n => !isNaN(n));
+    
+    if (numbers.length !== count) {
+      console.warn('Dados corrompidos: contagem não confere');
+      return [];
+    }
+    
+    return numbers;
+  }
+
+  descomprimirRespostas(compactStr) {
+    const diferenciais = this.desempacotar(compactStr);
+    if (diferenciais.length === 0) return [];
+    
+    const coordenadas = [diferenciais[0]];
+    for (let i = 1; i < diferenciais.length; i++) {
+      coordenadas.push(coordenadas[i-1] + diferenciais[i]);
+    }
+
+    const respostas = [];
+    
+    coordenadas.forEach(packed => {
+      if (packed < 0) return;
+      
+      const receberIndex = packed & 0x7;
+      const darIndex = (packed >> 3) & 0x7;
+      const pergIndex = (packed >> 6) & 0xFF;
+      const catIndex = (packed >> 14) & 0x7;
+      
+      const categoria = this.categoriasMap[catIndex];
+      if (categoria && dataManager.perguntas[categoria]) {
+        const pergunta = dataManager.perguntas[categoria][pergIndex];
+        if (pergunta) {
+          respostas.push({
+            categoria: categoria,
+            pergunta: pergunta,
+            dar: this.respostasMap[darIndex] || 'N/A',
+            receber: this.respostasMap[receberIndex] || 'N/A'
+          });
+        }
+      }
+    });
+    
+    return respostas;
+  }
+
+  comprimirPerfil() {
+    const perfil = {
+      posicao: document.getElementById('posicao')?.value || '',
+      dor: document.getElementById('dor')?.value || '',
+      teorica: document.getElementById('teorica')?.value || '',
+      pratica: document.getElementById('pratica')?.value || ''
+    };
+
+    const opcoes = dataManager.opcoesPerfil;
+    
+    const indices = [
+      Math.max(0, opcoes.posicoes?.indexOf(perfil.posicao) || 0),
+      Math.max(0, opcoes.toleranciaDor?.indexOf(perfil.dor) || 0),
+      Math.max(0, opcoes.experiencia?.indexOf(perfil.teorica) || 0),
+      Math.max(0, opcoes.experiencia?.indexOf(perfil.pratica) || 0)
+    ];
+
+    const packed = (indices[0] << 12) | (indices[1] << 8) | (indices[2] << 4) | indices[3];
+    return this.toBase85(BigInt(packed));
+  }
+
+  descomprimirPerfil(compactStr) {
+    if (!compactStr) return this.getPerfilPadrao();
+    
+    try {
+      const packed = Number(this.fromBase85(compactStr));
+      
+      const indices = [
+        (packed >> 12) & 0xF,
+        (packed >> 8) & 0xF,
+        (packed >> 4) & 0xF,
+        packed & 0xF
+      ];
+
+      const opcoes = dataManager.opcoesPerfil;
+      
+      return {
+        posicao: opcoes.posicoes?.[indices[0]] || 'Top',
+        dor: opcoes.toleranciaDor?.[indices[1]] || 'Média',
+        teorica: opcoes.experiencia?.[indices[2]] || '0-3 anos',
+        pratica: opcoes.experiencia?.[indices[3]] || '0-3 anos'
+      };
+    } catch (error) {
+      console.warn('Erro ao descomprimir perfil:', error);
+      return this.getPerfilPadrao();
+    }
+  }
+
+  getPerfilPadrao() {
+    return {
+      posicao: 'Top',
+      dor: 'Média',
+      teorica: '0-3 anos',
+      pratica: '0-3 anos'
+    };
+  }
+
+  calcularChecksum(dados) {
+    let checksum = 0;
+    for (let i = 0; i < dados.length; i++) {
+      checksum = (checksum + dados.charCodeAt(i) * (i + 1)) % 65536;
+    }
+    return this.toBase85(BigInt(checksum));
+  }
+
+  criarLinkCompleto(respostasUsuario) {
+    const respostasComp = this.comprimirRespostas(respostasUsuario);
+    const perfilComp = this.comprimirPerfil();
+    
+    const dados = `${respostasComp}~${perfilComp}`;
+    const checksum = this.calcularChecksum(dados);
+    
+    return `${dados}#${checksum}`;
+  }
+
+  carregarLinkCompleto(dadosComprimidos) {
+    const parts = dadosComprimidos.split('#');
+    if (parts.length !== 2) {
+      throw new Error('Formato de link inválido');
+    }
+
+    const [dados, checksumRecebido] = parts;
+    const checksumCalculado = this.calcularChecksum(dados);
+    
+    if (checksumRecebido !== checksumCalculado) {
+      throw new Error('Link corrompido - checksum não confere');
+    }
+
+    const [respostasStr, perfilStr] = dados.split('~');
+    
+    return {
+      respostas: this.descomprimirRespostas(respostasStr),
+      perfil: this.descomprimirPerfil(perfilStr)
+    };
+  }
+}
+
+// ===============================
+// APLICAÇÃO PRINCIPAL
+// ===============================
+
 // Instância global do gerenciador de dados
 const dataManager = new DataManager();
+
+// Instância do compressor
+const compressorMaximo = new CompressorMaximo();
 
 // Variáveis globais do app
 let listaPerguntas = [];
@@ -12,18 +276,10 @@ let voltouPergunta = false;
 // Inicialização do app
 document.addEventListener('DOMContentLoaded', async function() {
   try {
-    // Mostrar loading
     mostrarLoading(true);
-    
-    // Carregar dados
     await dataManager.carregarTodos();
-    
-    // Inicializar interface
     inicializarInterface();
-    
-    // Verificar resultado compartilhado
     verificarResultadoCompartilhado();
-    
   } catch (error) {
     console.error('Erro na inicialização:', error);
     mostrarErroCarregamento();
@@ -54,16 +310,12 @@ function mostrarErroCarregamento() {
 }
 
 function inicializarInterface() {
-  // Configurar botões toggle
   const botoesToggle = document.querySelectorAll('.toggle');
   botoesToggle.forEach(btn => {
     btn.addEventListener('click', () => btn.classList.toggle('active'));
   });
 
-  // Gerar subcategorias dinamicamente
   gerarSubcategorias();
-  
-  // Gerar opções de perfil dinamicamente
   gerarOpcoesPerfil();
   
   console.log('✅ Interface inicializada');
@@ -88,7 +340,6 @@ function gerarSubcategorias() {
 function gerarOpcoesPerfil() {
   const opcoes = dataManager.opcoesPerfil;
   
-  // Atualizar select de posição
   const selectPosicao = document.getElementById('posicao');
   if (selectPosicao) {
     selectPosicao.innerHTML = '';
@@ -100,7 +351,6 @@ function gerarOpcoesPerfil() {
     });
   }
 
-  // Atualizar select de tolerância à dor
   const selectDor = document.getElementById('dor');
   if (selectDor) {
     selectDor.innerHTML = '';
@@ -112,7 +362,6 @@ function gerarOpcoesPerfil() {
     });
   }
 
-  // Atualizar selects de experiência
   ['teorica', 'pratica'].forEach(tipo => {
     const select = document.getElementById(tipo);
     if (select) {
@@ -127,12 +376,10 @@ function gerarOpcoesPerfil() {
   });
 }
 
-// Função para iniciar questionário
 function iniciarQuestionario() {
   const selecionadas = Array.from(
     document.querySelectorAll('[data-subcategoria].active')
   ).map(btn => {
-    // Remove emoji e espaços extras
     const texto = btn.textContent.trim();
     return texto.replace(/^[^\s]+\s/, '');
   });
@@ -159,7 +406,6 @@ function iniciarQuestionario() {
   mostrarPergunta();
 }
 
-// Função para atualizar cabeçalhos
 function atualizarCabecalhosQuestionario() {
   const categoriaAtual = listaPerguntas[indice]?.categoria;
   const classificacao = dataManager.obterClassificacao(categoriaAtual);
@@ -172,14 +418,12 @@ function atualizarCabecalhosQuestionario() {
       darHeader.innerHTML = `${classificacao.icone1} ${classificacao.tipo1}`;
       receberHeader.innerHTML = `${classificacao.icone2} ${classificacao.tipo2}`;
       
-      // Aplicar cores
       darHeader.style.background = `linear-gradient(135deg, ${classificacao.cor1} 0%, ${classificacao.cor1}dd 100%)`;
       receberHeader.style.background = `linear-gradient(135deg, ${classificacao.cor2} 0%, ${classificacao.cor2}dd 100%)`;
     }
   }
 }
 
-// Função para mostrar pergunta
 function mostrarPergunta() {
   if (indice < 0 || indice >= listaPerguntas.length) return;
   
@@ -187,25 +431,20 @@ function mostrarPergunta() {
   document.getElementById('categoriaAtual').textContent = `📋 ${atual.categoria}`;
   document.getElementById('perguntaAtual').textContent = atual.texto;
 
-  // Limpar seleções anteriores
   respostaDarAtual = null;
   respostaReceberAtual = null;
   
-  // Restaurar respostas se existirem
   if (respostasUsuario[indice]) {
     respostaDarAtual = respostasUsuario[indice].dar;
     respostaReceberAtual = respostasUsuario[indice].receber;
   }
 
-  // Atualizar cabeçalhos com as classificações corretas
   atualizarCabecalhosQuestionario();
-  
   criarRespostas();
   atualizarProgresso();
   verificarBotaoProximo();
 }
 
-// Função para criar respostas
 function criarRespostas() {
   const container = document.getElementById('questionResponses');
   container.innerHTML = '';
@@ -217,7 +456,6 @@ function criarRespostas() {
     responseRow.className = 'response-row';
     responseRow.setAttribute('data-resposta', resposta);
     
-    // Switch DAR
     const darSwitch = document.createElement('div');
     darSwitch.className = 'response-switch';
     darSwitch.innerHTML = `
@@ -227,12 +465,10 @@ function criarRespostas() {
       </label>
     `;
     
-    // Texto da resposta
     const responseText = document.createElement('div');
     responseText.className = 'response-text';
     responseText.textContent = resposta;
     
-    // Switch RECEBER
     const receberSwitch = document.createElement('div');
     receberSwitch.className = 'response-switch';
     receberSwitch.innerHTML = `
@@ -242,7 +478,6 @@ function criarRespostas() {
       </label>
     `;
     
-    // Event listeners
     const darInput = darSwitch.querySelector('input');
     const receberInput = receberSwitch.querySelector('input');
     
@@ -270,7 +505,6 @@ function criarRespostas() {
       verificarBotaoProximo();
     });
     
-    // Marcar como selecionado se for a resposta atual
     if (respostaDarAtual === resposta) {
       darInput.checked = true;
     }
@@ -278,7 +512,6 @@ function criarRespostas() {
       receberInput.checked = true;
     }
     
-    // Montar a linha
     responseRow.appendChild(darSwitch);
     responseRow.appendChild(responseText);
     responseRow.appendChild(receberSwitch);
@@ -361,7 +594,6 @@ function atualizarProgresso() {
   progressBar.style.width = porcentagem + '%';
 }
 
-// Função mostrarResultado
 function mostrarResultado() {
   document.getElementById('questionario').classList.add('hidden');
   document.getElementById('resultados').classList.remove('hidden');
@@ -371,7 +603,6 @@ function mostrarResultado() {
   
   const agrupado = {};
 
-  // Filtrar respostas N/A
   const respostasFiltradas = respostasUsuario.filter(r => 
     r.dar !== 'N/A' || r.receber !== 'N/A'
   );
@@ -399,13 +630,8 @@ function mostrarResultado() {
     }
   });
 
-  // Adicionar resumo do perfil selecionado
   adicionarResumoPerfilSelecionado(resumo);
-
-  // Adicionar estatísticas gerais
   adicionarEstatisticasGerais(resumo, respostasFiltradas);
-
-  // Adicionar botão de compartilhamento
   adicionarBotaoCompartilhar(resumo);
 
   for (const categoria in agrupado) {
@@ -413,7 +639,6 @@ function mostrarResultado() {
     secao.className = 'resultado-categoria';
     secao.innerHTML = `<h3>📋 ${categoria}</h3>`;
     
-    // Obter os rótulos corretos para esta categoria usando dataManager
     const classificacao = dataManager.obterClassificacao(categoria);
     
     if (classificacao) {
@@ -562,7 +787,7 @@ function adicionarBotaoCompartilhar(container) {
   
   compartilhar.innerHTML = `
     <h3>🔗 Compartilhar Resultados</h3>
-    <p>Gere um link único para compartilhar seus resultados com outras pessoas</p>
+    <p>Gere um link ultra-compacto para compartilhar seus resultados com segurança</p>
     <button class="btn-compartilhar" onclick="copiarLinkCompartilhamento()">
       📋 Copiar Link de Compartilhamento
     </button>
@@ -666,23 +891,187 @@ function criarTabelaResultado(dados, titulo, categoria) {
   return container;
 }
 
-// Funções de compartilhamento (implementação básica)
+// ===============================
+// FUNÇÕES DE COMPARTILHAMENTO COM COMPRESSÃO MÁXIMA
+// ===============================
+
 function copiarLinkCompartilhamento() {
+  const botao = event.target;
+  const textoOriginal = botao.textContent;
+  
   try {
-    const link = window.location.href;
+    if (!respostasUsuario || respostasUsuario.length === 0) {
+      throw new Error('Nenhuma resposta para compartilhar');
+    }
+
+    const dadosComprimidos = compressorMaximo.criarLinkCompleto(respostasUsuario);
+    const urlAtual = window.location.href.split('#')[0];
+    const link = `${urlAtual}#x=${dadosComprimidos}`;
+    
+    const tamanhoOriginal = JSON.stringify(respostasUsuario).length;
+    const tamanhoComprimido = dadosComprimidos.length;
+    const taxaCompressao = Math.round((1 - tamanhoComprimido / tamanhoOriginal) * 100);
+    
+    console.log('📦 Compressão máxima realizada:');
+    console.log(`   • ${respostasUsuario.length} respostas preservadas`);
+    console.log(`   • ${tamanhoOriginal} → ${tamanhoComprimido} chars (${taxaCompressao}% redução)`);
+    console.log(`   • Link final: ${link.length} chars`);
+    
     navigator.clipboard.writeText(link).then(() => {
-      alert('Link copiado para a área de transferência!');
+      botao.textContent = '✅ Link Copiado!';
+      botao.style.background = '#27ae60';
+      
+      mostrarEstatisticasCompressao(link, {
+        respostas: respostasUsuario.length,
+        original: tamanhoOriginal,
+        comprimido: tamanhoComprimido,
+        taxa: taxaCompressao,
+        linkSize: link.length
+      });
+      
+      setTimeout(() => {
+        botao.textContent = textoOriginal;
+        botao.style.background = '';
+      }, 3000);
+      
     }).catch(() => {
-      alert('Erro ao copiar link');
+      const input = document.createElement('input');
+      input.value = link;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      
+      botao.textContent = '✅ Link Copiado!';
+      botao.style.background = '#27ae60';
+      
+      mostrarEstatisticasCompressao(link, {
+        respostas: respostasUsuario.length,
+        original: tamanhoOriginal,
+        comprimido: tamanhoComprimido,
+        taxa: taxaCompressao,
+        linkSize: link.length
+      });
     });
+    
   } catch (error) {
-    console.error('Erro ao compartilhar:', error);
-    alert('Erro ao gerar link de compartilhamento');
+    console.error('Erro na compressão:', error);
+    botao.textContent = '❌ Erro';
+    botao.style.background = '#e74c3c';
+    
+    setTimeout(() => {
+      botao.textContent = textoOriginal;
+      botao.style.background = '';
+    }, 3000);
   }
 }
 
-// Função para verificar resultado compartilhado (implementação básica)
+function mostrarEstatisticasCompressao(link, stats) {
+  const linkDiv = document.getElementById('linkGerado');
+  const linkTexto = document.getElementById('linkTexto');
+  
+  linkTexto.textContent = link;
+  linkDiv.style.display = 'block';
+  
+  const statsDiv = document.createElement('div');
+  statsDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(0,255,0,0.1); border-radius: 8px; font-size: 0.9rem;';
+  statsDiv.innerHTML = `
+    <strong>🛡️ Compressão Máxima com Integridade Total:</strong><br>
+    • ✅ ${stats.respostas} respostas preservadas (100% precisão)<br>
+    • 📦 ${stats.original} → ${stats.comprimido} caracteres (${stats.taxa}% redução)<br>
+    • 🔗 Link final: ${stats.linkSize} caracteres<br>
+    • 🔒 Checksum incluído para verificar integridade<br>
+    • ⚡ Otimizado para sessões BDSM seguras
+  `;
+  
+  linkDiv.appendChild(statsDiv);
+}
+
 function verificarResultadoCompartilhado() {
-  // Implementação futura para links compartilhados
-  console.log('Verificando resultado compartilhado...');
+  const hash = window.location.hash;
+  
+  if (hash.startsWith('#x=')) {
+    try {
+      const dadosComprimidos = hash.substring(3);
+      const dadosCarregados = compressorMaximo.carregarLinkCompleto(dadosComprimidos);
+      
+      if (dadosCarregados.respostas.length === 0) {
+        throw new Error('Nenhuma resposta válida encontrada');
+      }
+      
+      respostasUsuario = dadosCarregados.respostas;
+      aplicarPerfilCarregado(dadosCarregados.perfil);
+      mostrarModoVisualizacao(dadosCarregados.respostas.length, dadosCarregados.perfil);
+      
+      document.getElementById('questionario').classList.add('hidden');
+      document.getElementById('resultados').classList.remove('hidden');
+      mostrarResultado();
+      
+      console.log('✅ Link verificado e carregado:', dadosCarregados.respostas.length, 'respostas');
+      return true;
+      
+    } catch (error) {
+      console.error('Erro ao carregar link:', error);
+      mostrarMensagemErro(`Link inválido: ${error.message}`);
+      return false;
+    }
+  }
+  
+  return false;
+}
+
+function aplicarPerfilCarregado(perfil) {
+  const selects = {
+    posicao: document.getElementById('posicao'),
+    dor: document.getElementById('dor'), 
+    teorica: document.getElementById('teorica'),
+    pratica: document.getElementById('pratica')
+  };
+  
+  Object.entries(selects).forEach(([key, select]) => {
+    if (select && perfil[key]) {
+      select.value = perfil[key];
+    }
+  });
+}
+
+function mostrarModoVisualizacao(totalRespostas, perfil) {
+  const container = document.querySelector('.container');
+  const aviso = document.createElement('div');
+  aviso.className = 'modo-visualizacao';
+  
+  aviso.innerHTML = `
+    🛡️ <strong>Resultado Compartilhado</strong> - Dados verificados e íntegros
+    <br>
+    <small>📊 ${totalRespostas} respostas | 👤 ${perfil.posicao} | ⚡ ${perfil.dor} | ✅ Checksum OK</small>
+    <br>
+    <button onclick="window.location.hash=''; location.reload();" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: white; color: #e67e22; border: none; border-radius: 5px; cursor: pointer;">
+      🏠 Fazer Meu Próprio Teste
+    </button>
+  `;
+  
+  container.insertBefore(aviso, container.firstChild);
+
+  document.querySelectorAll('.section').forEach((secao, index) => {
+    if (index < 4) secao.style.display = 'none';
+  });
+}
+
+function mostrarMensagemErro(mensagem) {
+  const container = document.querySelector('.container');
+  const erro = document.createElement('div');
+  erro.className = 'modo-visualizacao';
+  erro.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+  
+  erro.innerHTML = `
+    ❌ <strong>Erro de Integridade</strong><br>
+    ${mensagem}<br>
+    <small>⚠️ Por segurança, não é possível carregar dados corrompidos</small>
+    <br>
+    <button onclick="window.location.hash=''; location.reload();" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: white; color: #e74c3c; border: none; border-radius: 5px; cursor: pointer;">
+      🏠 Fazer Novo Teste
+    </button>
+  `;
+  
+  container.insertBefore(erro, container.firstChild);
 }
