@@ -684,7 +684,6 @@ function adicionarBotaoCompartilhar(container) {
   
   compartilhar.innerHTML = `
     <h3>🔗 Compartilhar Resultados</h3>
-    <p>Gere um link ultra-compacto para compartilhar seus resultados com outras pessoas</p>
     <button class="btn-compartilhar" onclick="copiarLinkCompartilhamento()">
       📋 Copiar Link de Compartilhamento
     </button>
@@ -885,10 +884,6 @@ function mostrarInformacoesLink(link, resultado, dados) {
     infoAnterior.remove();
   }
   
-  // Calcular estatísticas
-  const tamanhoOriginal = JSON.stringify(dados).length;
-  const reducao = Math.round((1 - resultado.size / tamanhoOriginal) * 100);
-  
   const infoDiv = document.createElement('div');
   infoDiv.className = 'info-link';
   infoDiv.style.cssText = 'margin-top: 1rem; padding: 1rem; background: rgba(0,255,0,0.1); border-radius: 8px; font-size: 0.9rem;';
@@ -903,10 +898,9 @@ function mostrarInformacoesLink(link, resultado, dados) {
     `;
   } else {
     infoDiv.innerHTML = `
-      <strong>🔥 Firebase Ultra-Compacto!</strong><br>
+      <strong>✅ Link Gerado com Sucesso!</strong><br>
       • 📊 ${dados.respostas.length} respostas preservadas<br>
-      • 📦 ${tamanhoOriginal} → ${resultado.size} chars (${reducao}% redução)<br>
-      • 🔗 Link final: ${link.length} caracteres<br>
+      • 🔗 Link: ${link.length} caracteres<br>
       • ⚡ ID único: ${resultado.id}<br>
       • 🗓️ Expira em 90 dias
     `;
