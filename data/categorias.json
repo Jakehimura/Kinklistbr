@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "version": "3.0.0",
+    "version": "3.1.0",
     "lastUpdated": "2025-07-22",
-    "totalCategorias": 11
+    "totalCategorias": 13
   },
   "classificacoes": {
     "Atos sexuais": {
@@ -21,6 +21,14 @@
       "cor1": "#e74c3c",
       "cor2": "#27ae60"
     },
+    "Shibari/Rope Play": {
+      "tipo1": "RECEBER",
+      "tipo2": "APLICAR",
+      "icone1": "🎋",
+      "icone2": "🪢",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
     "Sadismo e Masoquismo": {
       "tipo1": "DAR",
       "tipo2": "RECEBER",
@@ -34,6 +42,14 @@
       "tipo2": "OBEDECER",
       "icone1": "👑",
       "icone2": "🙇",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Humilhação e Degradação": {
+      "tipo1": "FAZER",
+      "tipo2": "RECEBER",
+      "icone1": "😈",
+      "icone2": "😳",
       "cor1": "#e74c3c",
       "cor2": "#27ae60"
     },
@@ -113,12 +129,21 @@
       "ativa": true,
       "cor": "#9c27b0"
     },
+    "Shibari/Rope Play": {
+      "id": "shibari_rope_play",
+      "nome": "Shibari/Rope Play",
+      "icone": "🪢",
+      "descricao": "Arte japonesa de amarração com cordas",
+      "ordem": 3,
+      "ativa": true,
+      "cor": "#8bc34a"
+    },
     "Sadismo e Masoquismo": {
       "id": "sadismo_masoquismo",
       "nome": "Sadismo e Masoquismo",
       "icone": "⚡",
       "descricao": "Práticas envolvendo dor e prazer",
-      "ordem": 3,
+      "ordem": 4,
       "ativa": true,
       "cor": "#f44336"
     },
@@ -127,16 +152,25 @@
       "nome": "Dominação e Submissão",
       "icone": "👑",
       "descricao": "Dinâmicas de poder",
-      "ordem": 4,
+      "ordem": 5,
       "ativa": true,
       "cor": "#3f51b5"
+    },
+    "Humilhação e Degradação": {
+      "id": "humilhacao_degradacao",
+      "nome": "Humilhação e Degradação",
+      "icone": "😈",
+      "descricao": "Práticas de humilhação e degradação",
+      "ordem": 6,
+      "ativa": true,
+      "cor": "#d32f2f"
     },
     "Role Play": {
       "id": "role_play",
       "nome": "Role Play",
       "icone": "🎭",
       "descricao": "Representação de papéis",
-      "ordem": 5,
+      "ordem": 7,
       "ativa": true,
       "cor": "#ff9800"
     },
@@ -145,7 +179,7 @@
       "nome": "Fetiches",
       "icone": "🌟",
       "descricao": "Fetiches específicos",
-      "ordem": 6,
+      "ordem": 8,
       "ativa": true,
       "cor": "#4caf50"
     },
@@ -154,7 +188,7 @@
       "nome": "Pessoas",
       "icone": "👥",
       "descricao": "Configurações de participantes",
-      "ordem": 7,
+      "ordem": 9,
       "ativa": true,
       "cor": "#e91e63"
     },
@@ -163,7 +197,7 @@
       "nome": "Vestimentas",
       "icone": "👗",
       "descricao": "Roupas e acessórios",
-      "ordem": 8,
+      "ordem": 10,
       "ativa": true,
       "cor": "#795548"
     },
@@ -172,7 +206,7 @@
       "nome": "Equipamentos de Contenção",
       "icone": "🔒",
       "descricao": "Equipamentos para restrição",
-      "ordem": 9,
+      "ordem": 11,
       "ativa": true,
       "cor": "#607d8b"
     },
@@ -181,7 +215,7 @@
       "nome": "Equipamentos de Estimulação",
       "icone": "⚡",
       "descricao": "Equipamentos para prazer e dor",
-      "ordem": 10,
+      "ordem": 12,
       "ativa": true,
       "cor": "#673ab7"
     },
@@ -190,7 +224,7 @@
       "nome": "Fluidos Corporais",
       "icone": "💧",
       "descricao": "Práticas envolvendo fluidos",
-      "ordem": 11,
+      "ordem": 13,
       "ativa": true,
       "cor": "#00bcd4"
     }
