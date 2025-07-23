@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "version": "3.0.0",
+    "version": "3.1.0",
     "lastUpdated": "2025-07-22"
   },
   "respostas": [
@@ -20,6 +20,8 @@
       "Sádico",
       "Masoquista",
       "Fetichista",
+      "Rigger",
+      "Bunny",
       "Outros"
     ],
     "toleranciaDor": [
@@ -55,5 +57,20 @@
     "Privado",
     "Público (exibição controlada)",
     "Clubes/Meetings"
+  ],
+  "categorias": [
+    "Atos sexuais",
+    "Bondage", 
+    "Shibari/Rope Play",
+    "Sadismo e Masoquismo",
+    "Dominação e Submissão",
+    "Humilhação e Degradação",
+    "Role Play",
+    "Fetiches",
+    "Pessoas",
+    "Vestimentas",
+    "Equipamentos de Contenção",
+    "Equipamentos de Estimulação",
+    "Fluidos Corporais"
   ]
 }
