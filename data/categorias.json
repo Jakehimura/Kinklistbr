@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "version": "2.0.0",
+    "version": "3.0.0",
     "lastUpdated": "2025-07-22",
-    "totalCategorias": 7
+    "totalCategorias": 11
   },
   "classificacoes": {
     "Atos sexuais": {
@@ -53,11 +53,43 @@
       "cor1": "#e74c3c",
       "cor2": "#27ae60"
     },
-    "Equipamentos": {
+    "Pessoas": {
+      "tipo1": "EU",
+      "tipo2": "PARCEIRO(S)",
+      "icone1": "👤",
+      "icone2": "👥",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Vestimentas": {
+      "tipo1": "EU USO",
+      "tipo2": "PARCEIRO USA",
+      "icone1": "👕",
+      "icone2": "👗",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Equipamentos de Contenção": {
       "tipo1": "APLICAR",
       "tipo2": "RECEBER",
       "icone1": "🔧",
+      "icone2": "🔒",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Equipamentos de Estimulação": {
+      "tipo1": "APLICAR",
+      "tipo2": "RECEBER",
+      "icone1": "⚡",
       "icone2": "💖",
+      "cor1": "#e74c3c",
+      "cor2": "#27ae60"
+    },
+    "Fluidos Corporais": {
+      "tipo1": "DAR",
+      "tipo2": "RECEBER",
+      "icone1": "💧",
+      "icone2": "💦",
       "cor1": "#e74c3c",
       "cor2": "#27ae60"
     }
@@ -67,7 +99,7 @@
       "id": "atos_sexuais",
       "nome": "Atos sexuais",
       "icone": "💕",
-      "descricao": "Práticas sexuais diversas",
+      "descricao": "Práticas sexuais básicas",
       "ordem": 1,
       "ativa": true,
       "cor": "#e91e63"
@@ -76,7 +108,7 @@
       "id": "bondage",
       "nome": "Bondage",
       "icone": "⛓️",
-      "descricao": "Práticas de contenção e restrição",
+      "descricao": "Práticas de contenção básicas",
       "ordem": 2,
       "ativa": true,
       "cor": "#9c27b0"
@@ -112,19 +144,55 @@
       "id": "fetiches",
       "nome": "Fetiches",
       "icone": "🌟",
-      "descricao": "Fetiches e preferências específicas",
+      "descricao": "Fetiches específicos",
       "ordem": 6,
       "ativa": true,
       "cor": "#4caf50"
     },
-    "Equipamentos": {
-      "id": "equipamentos",
-      "nome": "Equipamentos",
-      "icone": "🔧",
-      "descricao": "Equipamentos e acessórios",
+    "Pessoas": {
+      "id": "pessoas",
+      "nome": "Pessoas",
+      "icone": "👥",
+      "descricao": "Configurações de participantes",
       "ordem": 7,
       "ativa": true,
+      "cor": "#e91e63"
+    },
+    "Vestimentas": {
+      "id": "vestimentas",
+      "nome": "Vestimentas",
+      "icone": "👗",
+      "descricao": "Roupas e acessórios",
+      "ordem": 8,
+      "ativa": true,
+      "cor": "#795548"
+    },
+    "Equipamentos de Contenção": {
+      "id": "equipamentos_contencao",
+      "nome": "Equipamentos de Contenção",
+      "icone": "🔒",
+      "descricao": "Equipamentos para restrição",
+      "ordem": 9,
+      "ativa": true,
       "cor": "#607d8b"
+    },
+    "Equipamentos de Estimulação": {
+      "id": "equipamentos_estimulacao", 
+      "nome": "Equipamentos de Estimulação",
+      "icone": "⚡",
+      "descricao": "Equipamentos para prazer e dor",
+      "ordem": 10,
+      "ativa": true,
+      "cor": "#673ab7"
+    },
+    "Fluidos Corporais": {
+      "id": "fluidos_corporais",
+      "nome": "Fluidos Corporais",
+      "icone": "💧",
+      "descricao": "Práticas envolvendo fluidos",
+      "ordem": 11,
+      "ativa": true,
+      "cor": "#00bcd4"
     }
   }
 }
