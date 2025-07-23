@@ -1092,6 +1092,658 @@ function mostrarErroCarregamento(mensagem) {
   
   container.insertBefore(erro, container.firstChild);
 }
+
+// ===============================
+// SISTEMA DE EXPORT PDF/IMAGEM
+// ===============================
+
+// Detectar se é dispositivo móvel
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+         window.innerWidth <= 768;
+}
+
+// Função principal de export (detecta automaticamente o tipo)
+async function exportarPDF() {
+  const botao = event?.target || document.querySelector('.btn-action');
+  const textoOriginal = botao?.textContent || '';
+  
+  try {
+    if (!respostasUsuario || respostasUsuario.length === 0) {
+      throw new Error('Nenhum resultado para exportar');
+    }
+
+    // Detectar dispositivo e ajustar interface
+    const mobile = isMobile();
+    const tipoExport = mobile ? 'Imagem' : 'PDF';
+    
+    if (botao) {
+      botao.textContent = `⏳ Gerando ${tipoExport}...`;
+      botao.disabled = true;
+    }
+
+    // Preparar layout para export
+    const { container, originalElements } = await prepararLayoutExport();
+    
+    // Aguardar um frame para garantir renderização
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    
+    if (mobile) {
+      await gerarImagem(container);
+    } else {
+      await gerarPDF(container);
+    }
+    
+    // Restaurar layout original
+    restaurarLayoutOriginal(originalElements);
+    
+    if (botao) {
+      botao.textContent = `✅ ${tipoExport} Baixado!`;
+      botao.style.background = '#27ae60';
+      
+      setTimeout(() => {
+        botao.textContent = textoOriginal;
+        botao.style.background = '';
+        botao.disabled = false;
+      }, 3000);
+    }
+    
+  } catch (error) {
+    console.error('Erro no export:', error);
+    
+    if (botao) {
+      botao.textContent = '❌ Erro';
+      botao.style.background = '#e74c3c';
+      
+      setTimeout(() => {
+        botao.textContent = textoOriginal;
+        botao.style.background = '';
+        botao.disabled = false;
+      }, 3000);
+    }
+    
+    alert(`Erro ao gerar arquivo: ${error.message}`);
+  }
+}
+
+// Preparar layout otimizado para export
+async function prepararLayoutExport() {
+  // Elementos que devem ser removidos/ocultados no export
+  const elementosParaOcultar = [
+    '.results-header',
+    '.btn-action',
+    '.results-actions', 
+    '.compartilhar-container',
+    '.modo-visualizacao',
+    '.top-bar'
+  ];
+  
+  // Salvar estado original
+  const originalElements = [];
+  
+  elementosParaOcultar.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      originalElements.push({
+        element: el,
+        display: el.style.display
+      });
+      el.style.display = 'none';
+    });
+  });
+  
+  // Criar container de export
+  const exportContainer = document.createElement('div');
+  exportContainer.id = 'export-container';
+  exportContainer.className = 'export-layout';
+  
+  // Aplicar estilos de export
+  exportContainer.style.cssText = `
+    background: white;
+    padding: 40px;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2c3e50;
+    line-height: 1.6;
+    max-width: none;
+    box-shadow: none;
+  `;
+  
+  // Adicionar cabeçalho
+  const header = criarCabecalhoExport();
+  exportContainer.appendChild(header);
+  
+  // Adicionar resumo do perfil
+  const resumoPerfil = criarResumoPerfilExport();
+  exportContainer.appendChild(resumoPerfil);
+  
+  // Adicionar estatísticas
+  const stats = criarEstatisticasExport();
+  exportContainer.appendChild(stats);
+  
+  // Adicionar resultados por categoria
+  const resultados = criarResultadosExport();
+  exportContainer.appendChild(resultados);
+  
+  // Adicionar rodapé
+  const footer = criarRodapeExport();
+  exportContainer.appendChild(footer);
+  
+  // Inserir no DOM temporariamente
+  document.body.appendChild(exportContainer);
+  
+  return { container: exportContainer, originalElements };
+}
+
+function criarCabecalhoExport() {
+  const header = document.createElement('div');
+  header.style.cssText = `
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #667eea;
+  `;
+  
+  const agora = new Date().toLocaleDateString('pt-BR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  header.innerHTML = `
+    <h1 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 2.5rem; font-weight: 700;">
+      📋 Questionário BDSM - Resultados
+    </h1>
+    <p style="margin: 0; color: #7f8c8d; font-size: 1.1rem;">
+      Gerado em: ${agora}
+    </p>
+  `;
+  
+  return header;
+}
+
+function criarResumoPerfilExport() {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border: 2px solid #e9ecef;
+  `;
+  
+  const perfil = {
+    posicao: document.getElementById('posicao')?.value || 'N/A',
+    dor: document.getElementById('dor')?.value || 'N/A',
+    teorica: document.getElementById('teorica')?.value || 'N/A',
+    pratica: document.getElementById('pratica')?.value || 'N/A'
+  };
+  
+  const relacionamentos = Array.from(
+    document.querySelectorAll('.section:nth-child(3) .toggle.active')
+  ).map(btn => btn.textContent.trim());
+  
+  const locais = Array.from(
+    document.querySelectorAll('.section:nth-child(4) .toggle.active')
+  ).map(btn => btn.textContent.trim());
+  
+  container.innerHTML = `
+    <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 1.8rem;">
+      👤 Perfil do Usuário
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+      <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.5rem; margin-bottom: 5px;">🎯</div>
+        <div style="font-weight: 600; color: #34495e;">Posição</div>
+        <div style="color: #2c3e50; font-size: 1.1rem;">${perfil.posicao}</div>
+      </div>
+      <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.5rem; margin-bottom: 5px;">⚡</div>
+        <div style="font-weight: 600; color: #34495e;">Tolerância à Dor</div>
+        <div style="color: #2c3e50; font-size: 1.1rem;">${perfil.dor}</div>
+      </div>
+      <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.5rem; margin-bottom: 5px;">📚</div>
+        <div style="font-weight: 600; color: #34495e;">Exp. Teórica</div>
+        <div style="color: #2c3e50; font-size: 1.1rem;">${perfil.teorica}</div>
+      </div>
+      <div style="background: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.5rem; margin-bottom: 5px;">🔥</div>
+        <div style="font-weight: 600; color: #34495e;">Exp. Prática</div>
+        <div style="color: #2c3e50; font-size: 1.1rem;">${perfil.pratica}</div>
+      </div>
+    </div>
+    ${relacionamentos.length > 0 ? `
+      <h3 style="margin: 20px 0 10px 0; color: #2c3e50;">💕 Relacionamentos</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+        ${relacionamentos.map(rel => `
+          <span style="background: #e91e63; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.9rem;">
+            ${rel}
+          </span>
+        `).join('')}
+      </div>
+    ` : ''}
+    ${locais.length > 0 ? `
+      <h3 style="margin: 20px 0 10px 0; color: #2c3e50;">📍 Locais</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${locais.map(local => `
+          <span style="background: #ff9800; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.9rem;">
+            ${local}
+          </span>
+        `).join('')}
+      </div>
+    ` : ''}
+  `;
+  
+  return container;
+}
+
+function criarEstatisticasExport() {
+  const respostasFiltradas = respostasUsuario.filter(r => 
+    r.dar !== 'N/A' || r.receber !== 'N/A'
+  );
+  
+  const stats = calcularEstatisticas(respostasFiltradas);
+  
+  const container = document.createElement('div');
+  container.style.cssText = `
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+    border: 2px solid #e9ecef;
+  `;
+  
+  container.innerHTML = `
+    <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 1.8rem;">
+      📊 Resumo Estatístico
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+      <div style="background: white; padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2.5rem; font-weight: 700; color: #27ae60; margin-bottom: 5px;">
+          ${stats.totalAdoro}
+        </div>
+        <div style="color: #34495e; font-weight: 600;">ADORA fazer/receber</div>
+      </div>
+      <div style="background: white; padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2.5rem; font-weight: 700; color: #f39c12; margin-bottom: 5px;">
+          ${stats.totalAceito}
+        </div>
+        <div style="color: #34495e; font-weight: 600;">ACEITA fazer/receber</div>
+      </div>
+      <div style="background: white; padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2.5rem; font-weight: 700; color: #e74c3c; margin-bottom: 5px;">
+          ${stats.totalLimites}
+        </div>
+        <div style="color: #34495e; font-weight: 600;">Limites Rígidos</div>
+      </div>
+      <div style="background: white; padding: 20px; border-radius: 12px;">
+        <div style="font-size: 2.5rem; font-weight: 700; color: #95a5a6; margin-bottom: 5px;">
+          ${stats.totalNunca}
+        </div>
+        <div style="color: #34495e; font-weight: 600;">Nunca Experimentou</div>
+      </div>
+    </div>
+  `;
+  
+  return container;
+}
+
+function criarResultadosExport() {
+  const container = document.createElement('div');
+  container.style.marginBottom = '30px';
+  
+  const agrupado = {};
+  const respostasFiltradas = respostasUsuario.filter(r => 
+    r.dar !== 'N/A' || r.receber !== 'N/A'
+  );
+
+  respostasFiltradas.forEach(r => {
+    if (!agrupado[r.categoria]) {
+      agrupado[r.categoria] = {
+        tipo1: {},
+        tipo2: {}
+      };
+    }
+    
+    if (r.dar !== 'N/A') {
+      if (!agrupado[r.categoria].tipo1[r.dar]) {
+        agrupado[r.categoria].tipo1[r.dar] = [];
+      }
+      agrupado[r.categoria].tipo1[r.dar].push(r.pergunta);
+    }
+    
+    if (r.receber !== 'N/A') {
+      if (!agrupado[r.categoria].tipo2[r.receber]) {
+        agrupado[r.categoria].tipo2[r.receber] = [];
+      }
+      agrupado[r.categoria].tipo2[r.receber].push(r.pergunta);
+    }
+  });
+
+  const titulo = document.createElement('h2');
+  titulo.style.cssText = `
+    margin: 0 0 30px 0; 
+    color: #2c3e50; 
+    font-size: 1.8rem;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #667eea;
+  `;
+  titulo.textContent = '📋 Resultados Detalhados por Categoria';
+  container.appendChild(titulo);
+
+  for (const categoria in agrupado) {
+    const secaoCategoria = document.createElement('div');
+    secaoCategoria.style.cssText = `
+      margin-bottom: 40px;
+      break-inside: avoid;
+    `;
+    
+    const categoriaHeader = document.createElement('h3');
+    categoriaHeader.style.cssText = `
+      margin: 0 0 20px 0;
+      color: #2c3e50;
+      font-size: 1.5rem;
+      padding: 15px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 10px;
+      border-left: 5px solid #667eea;
+    `;
+    categoriaHeader.textContent = `📋 ${categoria}`;
+    secaoCategoria.appendChild(categoriaHeader);
+    
+    const classificacao = dataManager.obterClassificacao(categoria);
+    
+    if (classificacao) {
+      // Tabela tipo 1
+      const tabelaTipo1 = criarTabelaExport(
+        agrupado[categoria].tipo1, 
+        classificacao.tipo1
+      );
+      secaoCategoria.appendChild(tabelaTipo1);
+      
+      // Espaçamento
+      const espacamento = document.createElement('div');
+      espacamento.style.height = '20px';
+      secaoCategoria.appendChild(espacamento);
+      
+      // Tabela tipo 2  
+      const tabelaTipo2 = criarTabelaExport(
+        agrupado[categoria].tipo2, 
+        classificacao.tipo2
+      );
+      secaoCategoria.appendChild(tabelaTipo2);
+    }
+    
+    container.appendChild(secaoCategoria);
+  }
+  
+  return container;
+}
+
+function criarTabelaExport(dados, titulo) {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    margin-bottom: 25px;
+    break-inside: avoid;
+  `;
+  
+  const tituloDiv = document.createElement('h4');
+  tituloDiv.style.cssText = `
+    margin: 0 0 15px 0;
+    color: #34495e;
+    font-size: 1.2rem;
+    padding: 10px 15px;
+    background: #ecf0f1;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+  `;
+  tituloDiv.textContent = titulo;
+  container.appendChild(tituloDiv);
+  
+  const tabela = document.createElement('table');
+  tabela.style.cssText = `
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  `;
+  
+  const respostasVisiveis = dataManager.respostas.filter(r => r !== 'N/A');
+  
+  // Header da tabela
+  const headerRow = document.createElement('tr');
+  respostasVisiveis.forEach(resposta => {
+    const th = document.createElement('th');
+    th.style.cssText = `
+      padding: 12px 8px;
+      background: #34495e;
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid #2c3e50;
+      font-size: 0.9rem;
+    `;
+    th.textContent = resposta;
+    headerRow.appendChild(th);
+  });
+  tabela.appendChild(headerRow);
+  
+  // Calcular número máximo de linhas
+  const maxLinhas = Math.max(...respostasVisiveis.map(r => (dados[r] || []).length));
+  
+  // Criar linhas
+  for (let i = 0; i < maxLinhas; i++) {
+    const row = document.createElement('tr');
+    respostasVisiveis.forEach(resposta => {
+      const td = document.createElement('td');
+      const conteudo = dados[resposta]?.[i] || "";
+      td.textContent = conteudo;
+      
+      td.style.cssText = `
+        padding: 10px 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+        font-size: 0.85rem;
+        vertical-align: top;
+      `;
+      
+      // Aplicar cores baseadas na resposta
+      if (conteudo) {
+        const cores = {
+          'Adoro': '#27ae60',
+          'Aproveito': '#58d68d',
+          'Aceito': '#f7dc6f',
+          'Tolero': '#e67e22',
+          'Limite rígido': '#e74c3c',
+          'Nunca experimentei': '#95a5a6'
+        };
+        
+        const cor = cores[resposta];
+        if (cor) {
+          td.style.background = cor;
+          td.style.color = ['Aceito'].includes(resposta) ? '#2c3e50' : 'white';
+          td.style.fontWeight = '600';
+        }
+      } else if (i % 2 === 0) {
+        td.style.background = '#f8f9fa';
+      }
+      
+      row.appendChild(td);
+    });
+    tabela.appendChild(row);
+  }
+  
+  container.appendChild(tabela);
+  return container;
+}
+
+function criarRodapeExport() {
+  const footer = document.createElement('div');
+  footer.style.cssText = `
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #ecf0f1;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+  `;
+  
+  const agora = new Date();
+  const dataHora = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
+  
+  footer.innerHTML = `
+    <p style="margin: 0 0 10px 0;">
+      📋 Questionário BDSM - Desenvolvido por HerrKrieg e Jakehimura
+    </p>
+    <p style="margin: 0; font-size: 0.8rem;">
+      Documento gerado em: ${dataHora}
+    </p>
+    <p style="margin: 10px 0 0 0; font-size: 0.8rem;">
+      Total de respostas: ${respostasUsuario.length} | 
+      Categorias: ${[...new Set(respostasUsuario.map(r => r.categoria))].length}
+    </p>
+  `;
+  
+  return footer;
+}
+
+// Restaurar layout original após export
+function restaurarLayoutOriginal(originalElements) {
+  // Remover container de export
+  const exportContainer = document.getElementById('export-container');
+  if (exportContainer) {
+    exportContainer.remove();
+  }
+  
+  // Restaurar elementos originais
+  originalElements.forEach(({ element, display }) => {
+    element.style.display = display;
+  });
+}
+
+// Gerar PDF para desktop
+async function gerarPDF(container) {
+  try {
+    // Garantir que jsPDF está disponível
+    if (typeof window.jsPDF === 'undefined') {
+      throw new Error('jsPDF não carregado');
+    }
+    
+    // Configurações do PDF
+    const pdf = new window.jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+    
+    // Configurações do html2canvas
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: container.scrollWidth,
+      height: container.scrollHeight,
+      scrollX: 0,
+      scrollY: 0
+    });
+    
+    const imgData = canvas.toDataURL('image/png', 0.95);
+    
+    // Dimensões do PDF (A4: 210x297mm)
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+    
+    // Calcular dimensões da imagem
+    const imgWidth = pdfWidth - 20; // 10mm margem de cada lado
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    let heightLeft = imgHeight;
+    let position = 10; // 10mm margem superior
+    
+    // Primeira página
+    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight, '', 'FAST');
+    heightLeft -= (pdfHeight - 20); // 20mm total de margens
+    
+    // Páginas adicionais se necessário
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight + 10;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight, '', 'FAST');
+      heightLeft -= (pdfHeight - 20);
+    }
+    
+    // Nome do arquivo
+    const agora = new Date();
+    const timestamp = agora.toISOString().slice(0, 19).replace(/:/g, '-');
+    const nomeArquivo = `questionario-bdsm-${timestamp}.pdf`;
+    
+    // Download
+    pdf.save(nomeArquivo);
+    
+    console.log('✅ PDF gerado com sucesso:', nomeArquivo);
+    
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    throw new Error(`Falha ao gerar PDF: ${error.message}`);
+  }
+}
+
+// Gerar imagem para mobile
+async function gerarImagem(container) {
+  try {
+    // Configurações do html2canvas para mobile
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: container.scrollWidth,
+      height: container.scrollHeight,
+      scrollX: 0,
+      scrollY: 0
+    });
+    
+    // Converter para blob
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/png', 0.95);
+    });
+    
+    // Nome do arquivo
+    const agora = new Date();
+    const timestamp = agora.toISOString().slice(0, 19).replace(/:/g, '-');
+    const nomeArquivo = `questionario-bdsm-${timestamp}.png`;
+    
+    // Download da imagem
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Cleanup
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+    
+    console.log('✅ Imagem gerada com sucesso:', nomeArquivo);
+    
+  } catch (error) {
+    console.error('Erro ao gerar imagem:', error);
+    throw new Error(`Falha ao gerar imagem: ${error.message}`);
+  }
+}
+
 // ===============================
 // FUNÇÕES DE COMPARAÇÃO E EXPORT
 // ===============================
@@ -1099,11 +1751,5 @@ function mostrarErroCarregamento(mensagem) {
 // Placeholder para comparação de perfis
 function abrirComparacao() {
   console.log('🔗 Abrindo sistema de comparação...');
-  alert('Sistema de comparação será implementado agora!');
-}
-
-// Placeholder para export PDF
-function exportarPDF() {
-  console.log('📄 Iniciando export PDF...');
-  alert('Export PDF será implementado agora!');
+  alert('Sistema de comparação será implementado em breve!');
 }
