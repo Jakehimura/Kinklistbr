@@ -17,7 +17,7 @@ class CompatibilitySystem {
     this.createModal();
   }
 
-  // Criar modal com 3 opções
+  // Criar modal com apenas opção de link
   createModal() {
     const modal = document.createElement('div');
     modal.id = 'comparison-modal';
@@ -30,47 +30,16 @@ class CompatibilitySystem {
           <h2>🔗 Comparar com Outro Perfil</h2>
           <button class="modal-close" onclick="compatibilitySystem.closeModal()">✕</button>
         </div>
-        
-        <div class="modal-tabs">
-          <button class="tab-btn active" data-tab="link">🔗 Link</button>
-          <button class="tab-btn" data-tab="upload">📄 Upload</button>
-          <button class="tab-btn" data-tab="code">🔢 Código</button>
-        </div>
 
         <div class="modal-body">
-          <!-- Aba Link -->
-          <div class="tab-content active" id="tab-link">
+          <div class="single-tab-content">
             <h3>📋 Cole o link do outro perfil:</h3>
             <input type="text" id="link-input" placeholder="https://app.com/#r=abc123 ou https://app.com/#share=..." class="modal-input">
             <p class="tab-description">
               💡 Peça para a pessoa enviar o link gerado nos resultados dela
             </p>
             <button class="modal-btn" onclick="compatibilitySystem.loadFromLink()">
-              🔍 Carregar Perfil
-            </button>
-          </div>
-
-          <!-- Aba Upload -->
-          <div class="tab-content" id="tab-upload">
-            <h3>📁 Selecione arquivo do perfil:</h3>
-            <input type="file" id="file-input" accept=".json" class="modal-file">
-            <p class="tab-description">
-              💡 A pessoa pode baixar seus dados como backup nos resultados
-            </p>
-            <button class="modal-btn" onclick="compatibilitySystem.loadFromFile()">
-              📤 Carregar Arquivo
-            </button>
-          </div>
-
-          <!-- Aba Código -->
-          <div class="tab-content" id="tab-code">
-            <h3>🔢 Cole o código do perfil:</h3>
-            <input type="text" id="code-input" placeholder="ABC123" class="modal-input" maxlength="6">
-            <p class="tab-description">
-              💬 Código curto de 6 dígitos que aparece nos resultados
-            </p>
-            <button class="modal-btn" onclick="compatibilitySystem.loadFromCode()">
-              🎯 Carregar Perfil
+              🔍 Carregar e Comparar Perfil
             </button>
           </div>
         </div>
@@ -89,10 +58,7 @@ class CompatibilitySystem {
     // Adicionar ao DOM
     document.body.appendChild(modal);
     
-    // Configurar tabs
-    this.setupTabs();
-    
-    // Focar no primeiro input
+    // Focar no input
     setTimeout(() => {
       document.getElementById('link-input').focus();
     }, 100);
