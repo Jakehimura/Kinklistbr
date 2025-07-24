@@ -246,14 +246,11 @@
       color: #ecf0f1;
     }
 
-     .toggle-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
+      .toggle-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       margin-top: 1rem;
-      min-height: 200px;
     }
 
     .toggle {
